@@ -1,0 +1,14 @@
+window:
+  width: 1280
+  height: 720
+
+populations: [
+  ../input/population_1.asc,
+  ../input/population_2.asc,
+  ../input/population_1.asc,
+  ../input/population_2.asc,
+  ../input/population_1.asc,
+  ]
+
+entity:
+  velocity: 0.000001
