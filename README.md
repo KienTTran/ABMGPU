@@ -3,7 +3,7 @@ Demo of agent based model on GPU using CUDA 12.2.1 and OpenGL 4.5 Windows/Linux.
 
 Each triangle is an agent with different color and trajectory. 
 On GTX 3060 the software can render 5-10M agents without problem. 
-The image below display 12000 agents for easier observation.
+The image below illustrates a demo of 12000 agents for easier observation.
 
 ![](https://github.com/KienTTran/ABMGPU/blob/master/ABMGPU.gif)
 
