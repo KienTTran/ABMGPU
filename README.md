@@ -1,10 +1,10 @@
 # ABMGPU
-:tada: Demo of agent based model on GPU using CUDA 12.2.1 and OpenGL 4.5 Windows/Linux :tada:\
+:tada: Demo of agent based model on GPU using CUDA 12.2.1 and OpenGL 4.5 Windows/Linux :tada:
 
 :dart: Each triangle is an agent with different color and trajectory.
 :dart: On GTX 3060 the software can render 5-10M agents without problem.
 
-:flower_playing_cards: The image below illustrates a demo of 12000 agents for easier observation.\
+:flower_playing_cards: The image below illustrates a demo of 12000 agents for easier observation.
 
 ![](https://github.com/KienTTran/ABMGPU/blob/master/ABMGPU.gif)
 
