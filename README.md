@@ -9,14 +9,14 @@ The image below illustrates a demo of 12000 agents for easier observation.
 ![](https://github.com/KienTTran/ABMGPU/blob/master/ABMGPU.gif)
 
 Features
-:white_check_mark: Agent instances on GPU memory
-:white_check_mark: Renders with OpenGL with GLFW3 window manager
-:white_check_mark: Uses SSBO in OpenGL 4.5
-:white_check_mark: OpenGL CUDA interop
-:white_check_mark: Dynamic camera views (pan,zoom with mouse)
-:white_check_mark: Configration via YAML file
-:white_check_mark: Libraries installed using vcpkg
-:warning: Code is dirty and buggy 
+:white_check_mark: Agent instances on GPU memory\
+:white_check_mark: Renders with OpenGL with GLFW3 window manager\
+:white_check_mark: Uses SSBO in OpenGL 4.5\
+:white_check_mark: OpenGL CUDA interop\
+:white_check_mark: Dynamic camera views (pan,zoom with mouse)\
+:white_check_mark: Configration via YAML file\
+:white_check_mark: Libraries installed using vcpkg\
+:warning: Code is dirty and buggy\
    
 Libraries:
 vcpkg install glfw3 opengl glew glm imgui[core,glfw-binding,opengl3-binding] easyloggingpp date yaml-cpp
