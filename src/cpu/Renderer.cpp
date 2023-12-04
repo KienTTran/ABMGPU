@@ -139,7 +139,6 @@ void Renderer::render() {
 
             double currentTime = glfwGetTime();
             double time  = currentTime - previousTime;
-//            printf("time: %20f\n", time);
         }
 
         glfwSwapBuffers(renderer_window);
