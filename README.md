@@ -3,7 +3,7 @@
 
 A demo of using CUDA and OpenGL to render different populations with multiple agents with their own properties.\
 This is a useful begin place for those want to illustrate or experiment how an agent based model works.\
-You can update the `adjust_person_entity` function to change the moving and color pathway of each agent.
+You can update the `adjust_person_entity` function in `src/gpu/GPUBuffer.cu` to change the moving path and color of each agent.
 
 :dart: Each triangle is an agent with different color and trajectory.\
 :dart: On GTX 3060 the software can render 5-10M agents without problem.
