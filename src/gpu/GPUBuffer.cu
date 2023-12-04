@@ -45,10 +45,6 @@ __global__ void add_person(uint64_t work_from, uint64_t work_to, GPUPerson *peop
         people[index] = GPUPerson();
         people[index].id = work_from + index;
         people[index].state = GPUPerson::ALIVE;
-//        if(index == (work_to-work_from) - 1){
-//            printf("  [device][addPerson] from %lld to %lld index: %lld id: %lld state: %d\n",
-//                   work_from, work_to, index, people[index].id, people[index].state);
-//        }
     __syncthreads();
     }
     state[thread_index] = localState;
@@ -104,10 +100,6 @@ __global__ void adjust_person_entity(uint64_t work_batch, double i, float width,
         model = rotate(model, rot, glm::vec3(0.0f, 0.0f, 1.0f));
         model = translate(model, glm::vec3(0.0f, 0.0f, -1.0f));
         people_models[index] = model;
-//        people_colors[index] = glm::vec4(curand_uniform(&localState),curand_uniform(&localState),curand_uniform(&localState),1.0f);
-//        if(index >= work_batch - 5){
-//            printf("  [device] index: %lld, id: %lld x: %f y: %f\n", index, people[index].id, people_models[index][0], people_models[index][1]);
-//        }
         __syncthreads();
     }
     state[thread_index] = localState;
@@ -115,8 +107,6 @@ __global__ void adjust_person_entity(uint64_t work_batch, double i, float width,
 
 __host__ __device__ void GPUBuffer::initPopOnGPU(Population *population){
     population_ = population;
-//    float width = (float)Config::getInstance().window_width;
-//    float height = (float)Config::getInstance().window_height;
     float width = (float)100;
     float height = (float)100;
 
@@ -151,7 +141,6 @@ __host__ __device__ void GPUBuffer::initPopOnGPU(Population *population){
         GPURandom::getInstance().init(population_->h_population[p_index].size());
         uint64_t batch_size = (Config::getInstance().max_people_1_pop < population_->h_population[p_index].size())
                 ? Config::getInstance().max_people_1_pop : population_->h_population[p_index].size();
-        printf("Pop %d work batch size %lld\n", p_index,batch_size);
         //This is to make sure threads fit all people in population
         n_threads = (population_->h_population[p_index].size() < n_threads) ? population_->h_population[p_index].size() : n_threads;
         for(uint64_t remain = population_->h_population[p_index].size(); remain > 0; remain -= batch_size){
@@ -202,7 +191,6 @@ __host__ __device__ void GPUBuffer::update(){
 
     int n_threads = 1024;
     for(int p_index = 0; p_index < Config::getInstance().n_pops; p_index++) {
-//        printf("Pop %d people %lld\n", p_index, Config::getInstance().n_people_1_pop[p_index]);
         uint64_t batch_size = (Config::getInstance().max_people_1_pop < population_->h_population[p_index].size())
                               ? Config::getInstance().max_people_1_pop : population_->h_population[p_index].size();
         //This is to make sure threads fit all people in population
@@ -211,46 +199,14 @@ __host__ __device__ void GPUBuffer::update(){
             batch_size = (remain < batch_size) ? remain : batch_size;
             uint64_t batch_from = population_->h_population[p_index].size() - remain;
             uint64_t batch_to = population_->h_population[p_index].size() - remain + batch_size;
-//            printf("Pop %d work batch size %lld remain %lld, from %lld to %lld\n", p_index, batch_size, remain, batch_from, batch_to);
             buffer_person_.resize(batch_size);
             buffer_person_model_.resize(batch_size);
             buffer_person_color_.resize(batch_size);
-//            printf("Pop %d buffer_person_ size after resize %lld\n", p_index, buffer_person_.size());
             thrust::copy(population_->h_population[p_index].begin() + batch_from, population_->h_population[p_index].begin() + batch_to,buffer_person_.begin());
             thrust::copy(population_->h_people_velocities[p_index].begin() + batch_from, population_->h_people_velocities[p_index].begin() + batch_to,buffer_person_velocity_.begin());
             thrust::copy(population_->d_people_models[p_index].begin() + batch_from, population_->d_people_models[p_index].begin() + batch_to,buffer_person_model_.begin());
             thrust::copy(population_->d_people_colors[p_index].begin() + batch_from, population_->d_people_colors[p_index].begin() + batch_to,buffer_person_color_.begin());
-//            printf("Pop %d H2D from %lld to %lld\n", p_index, batch_from, batch_to);
             checkCudaErr(cudaGetLastError());
-//        if(remain == Config::getInstance().n_people_1_pop[p_index] && n_new_people[p_index] > 0){
-//            //add people
-//            d_new_people[p_index].resize(n_new_people[p_index]);
-//            d_new_people[p_index] = thrust::device_vector<Person>(n_new_people[p_index]);
-//            printf("Pop %d new people size %zd\n", p_index,d_new_people[p_index].size());
-//            printf("Pop %d addPerson from %lld to %lld\n", p_index,batch_to-n_new_people[p_index],batch_to);
-//            cudaMalloc((void **) &d_states, sizeof(curandState) * n_new_people[p_index]);
-//            setup_kernel<<<1, n_new_people[p_index]>>>(d_states);
-//            checkCudaErr(cudaDeviceSynchronize());
-//            checkCudaErr(cudaGetLastError());
-//            addPerson<<<1,n_new_people[p_index]>>>(batch_to-n_new_people[p_index],
-//                                                   batch_to,
-//                                                   thrust::raw_pointer_cast(d_new_people[p_index].data()),
-//                                                   d_states);
-//            checkCudaErr(cudaDeviceSynchronize());
-//            thrust::copy(d_new_people[p_index].begin(), d_new_people[p_index].end(), buffer_person_.end()-n_new_people[p_index]);
-//            checkCudaErr(cudaGetLastError());
-//        }
-//        /*remove people*/
-//        if(n_dead_people[p_index] > 0){
-//            printf("Pop %d remove %lld people\n", p_index,n_dead_people[p_index]);
-//            setDeadPerson<<<1,n_dead_people[p_index]>>>(batch_size,
-//                                                        thrust::raw_pointer_cast(buffer_person_.data()),
-//                                                        n_dead_people[p_index],
-//                                                        d_states);
-//            checkCudaErr(cudaDeviceSynchronize());
-//
-//            checkCudaErr(cudaGetLastError());
-//        }
             adjust_person_entity<<<((batch_size + n_threads - 1)/n_threads), n_threads>>>(batch_size, 0.0, width,height,
                                                                   thrust::raw_pointer_cast(buffer_person_.data()),
                                                                   thrust::raw_pointer_cast(buffer_person_model_.data()),
@@ -262,23 +218,8 @@ __host__ __device__ void GPUBuffer::update(){
             thrust::copy(buffer_person_velocity_.begin(), buffer_person_velocity_.end(), population_->h_people_velocities[p_index].begin() + batch_from);
             thrust::copy(buffer_person_model_.begin(), buffer_person_model_.end(), population_->d_people_models[p_index].begin() + batch_from);
             thrust::copy(buffer_person_color_.begin(), buffer_person_color_.end(), population_->d_people_colors[p_index].begin() + batch_from);
-//            printf("Pop %d D2H from %lld to %lld\n", p_index, batch_from, batch_to);
             checkCudaErr(cudaGetLastError());
         }
-//        printf("[GPUBuffer][update] Pop %d last people index %lld x: %f y: %f color: (%f %f %f)\n", p_index,
-//               population_->h_population[p_index][population_->h_population[p_index].size() - 1].id,
-//               population_->h_people_models[p_index][population_->h_people_models[p_index].size() - 1][0][0],
-//               population_->h_people_models[p_index][population_->h_people_models[p_index].size() - 1][0][1],
-//               population_->h_people_colors[p_index][population_->h_people_colors[p_index].size() - 1][0],
-//               population_->h_people_colors[p_index][population_->h_people_colors[p_index].size() - 1][1],
-//               population_->h_people_colors[p_index][population_->h_people_colors[p_index].size() - 1][2]);
-//    printf("Pop %d people size before: %lld\n", p_index, Config::getInstance().n_people_1_pop[p_index]);
-//    n_new_people[p_index] = 5;
-//    n_dead_people[p_index] = 3;
-//    Config::getInstance().n_people_1_pop[p_index] += n_new_people[p_index];
-//    printf("Pop %d host people size after: %lld\n", p_index, Config::getInstance().n_people_1_pop[p_index]);
-//    h_new_people[p_index].clear();
-//    checkCudaErr(cudaGetLastError());
     }
 }
 
