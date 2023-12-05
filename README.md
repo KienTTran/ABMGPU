@@ -40,7 +40,7 @@ or
 ```
 @software{Tran_Agent_based_simulation_2023,
 author = {Tran, Kien Trung},
-doi = {[TBA](https://doi.org/10.5281/zenodo.10263352)},
+doi = {10.5281/zenodo.10263352},
 month = dec,
 title = {{Agent based simulation using GPU and OpenGL}},
 url = {https://github.com/KienTTran/ABMGPU},
