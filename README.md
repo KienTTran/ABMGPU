@@ -30,4 +30,17 @@ The moving trajectory is randomized for each agent.
 
 vcpkg install glfw3 opengl glew glm imgui[core,glfw-binding,opengl3-binding] easyloggingpp date yaml-cpp
 
+| :pencil: Citation :pencil: |
+```
+@software{Tran_Agent_based_simulation_2023,
+author = {Tran, Kien Trung},
+doi = {TBA},
+month = dec,
+title = {{Agent based simulation using GPU and OpenGL}},
+url = {https://github.com/KienTTran/ABMGPU},
+version = {1.0.0},
+year = {2023}
+}
+```
+
 
