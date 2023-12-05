@@ -147,7 +147,6 @@ __host__ __device__ void GPUBuffer::initPopOnGPU(Population *population){
             batch_size = (remain < batch_size) ? remain : batch_size;
             uint64_t batch_from = population_->h_population[p_index].size() - remain;
             uint64_t batch_to = batch_from + batch_size;
-            printf("Pop %d work batch size %lld remain %lld, from %lld to %lld\n", p_index,batch_size,remain,batch_from,batch_to);
             buffer_person_.resize(batch_size);
             buffer_person_model_.resize(batch_size);
             buffer_person_color_.resize(batch_size);
