@@ -8,9 +8,9 @@ You can update the `adjust_person_entity` function in `src/gpu/GPUBuffer.cu` to 
 :dart: Each triangle is an agent with different color and trajectory.\
 :dart: On GTX 3060 the software can render 5-10M agents without problem.
 
-:flower_playing_cards: The image below illustrates a demo of 12000 agents for easier observation.
+:flower_playing_cards: The image below illustrates a demo of 12000 agents each population (60000 agents in total) for easier observation.
 
-In this demo, each agent is a triangle and it has two properties: color and moving path.\
+In this demo, each triangle is an independent agent and it has two properties: color and moving path.\
 The color is assigned by the population so all agents in the same population will have the same color.\
 The moving trajectory is randomized for each agent.
 
