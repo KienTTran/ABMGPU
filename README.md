@@ -19,11 +19,13 @@ The moving trajectory is randomized for each agent.
 | :gem: Features :gem: |
 
 :white_check_mark: Agent instances on GPU memory\
-:white_check_mark: Uses SSBO for instanced objects (with GLSL 450 shaders)\
+:white_check_mark: Uses SSBO (Shader Storage Buffer Object) for instanced objects (with GLSL 450 shaders)\
 :white_check_mark: CUDA OpenGL interops\
 :white_check_mark: Renders with GLFW3 window manager\
 :white_check_mark: Dynamic camera views in OpenGL (pan,zoom with mouse)\
 :white_check_mark: Libraries installed using vcpkg\
+:white_check_mark: Load configuration as YAML file\
+:white_check_mark: Load population data in GIS raster file (.asc file)\
 :warning: Code is dirty and buggy
    
 | :books: Libraries :books: |
@@ -49,4 +51,24 @@ year = {2023}
 }
 ```
 
+| :question: How it works :question: |
 
+The simulation is a combination of instancing feature and parallel computing from `OpenGL` and `CUDA` respectively.\
+Using `OpenGL`, you can instance as many objects as you want using `SSBO` and compute position and color of clone objects on shader via `GLSL` file. Instead of using shader, this demo using `CUDA` to compute postion and color (via `glm::mat4 matrix` and `glm::vec4 color` arrays) of all instances at the same time and all agents are computed in batch processing.
+
+
+| :star2: How to build :star2: |
+
+1. Clone the repository
+2. Install `vcpkg` and install requirement libraries\
+   `vcpkg install glfw3 opengl glew glm imgui[core,glfw-binding,opengl3-binding] easyloggingpp date yaml-cpp`\
+   Note: Some libraries are extra for experiment and future development (imgui, easylogging, date, glew)
+4. On Window:
+      - Use any IDE (I'm using `CLion`) supports `CMake` project to load the project folder
+      - Edit the CMakeList file to match your `vcpkg cmake` file and `CUDA` installation folder on your computer.
+      - Build and run
+6. On Linux:
+      - Edit the CMakeList file to match your `vcpkg cmake` file and `CUDA` installation folder on your computer.
+      - In the project folder, type `mkdir build && cd build && cmake ..` then execute the binary built
+8. Star :star2:, issue and pull request are welcomed
+   
