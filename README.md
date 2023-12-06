@@ -16,7 +16,7 @@ The moving trajectory is randomized for each agent.
 
 ![](https://github.com/KienTTran/ABMGPU/blob/master/ABMGPU.gif)
 
-:flower_playing_cards: The image below illustrates a demo of ~500,000 agents (`dev`branch).
+:flower_playing_cards: The image below illustrates a demo of ~500,000 agents of 10x10 populations config a from GIS raster file where each cell has a random number of agents. ( this demo is from `dev`branch).
 ![](https://github.com/KienTTran/ABMGPU/blob/master/ABMGPU_dev.gif)
 
 | :gem: Features :gem: |
