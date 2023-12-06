@@ -82,14 +82,14 @@ __global__ void add_person_entity(uint64_t work_from, uint64_t work_to, int p_in
     state[thread_index] = localState;
 }
 
-__global__ void adjust_person_entity(uint64_t work_batch, double i, float width, float height, GPUPerson *people, glm::mat4 *people_models, glm::vec4 *people_colors,curandState *state){
+__global__ void adjust_person_entity(uint64_t work_batch, double i, float width, float height, float config_velocity, GPUPerson *people, glm::mat4 *people_models, glm::vec4 *people_colors,curandState *state){
     int thread_index = blockIdx.x * blockDim.x + threadIdx.x;
     int stride = blockDim.x * gridDim.x;
     curandState localState = state[thread_index];
     for (uint64_t index = thread_index; index < work_batch; index += stride) {
         people[index].id = people[index].id + (int)i;
         glm::mat4 model = people_models[index];
-        float velocity = 0.000005;
+        float velocity = config_velocity;
         float x_n1_1 = (curand_uniform(&localState)-0.5f)*2.0f;
         float y_n1_1 = (curand_uniform(&localState)-0.5f)*2.0f;
         float x = x_n1_1*velocity;
@@ -207,6 +207,7 @@ __host__ __device__ void GPUBuffer::update(){
             thrust::copy(population_->d_people_colors[p_index].begin() + batch_from, population_->d_people_colors[p_index].begin() + batch_to,buffer_person_color_.begin());
             checkCudaErr(cudaGetLastError());
             adjust_person_entity<<<((batch_size + n_threads - 1)/n_threads), n_threads>>>(batch_size, 0.0, width,height,
+                                                                  Config().getInstance().entity_velocity,
                                                                   thrust::raw_pointer_cast(buffer_person_.data()),
                                                                   thrust::raw_pointer_cast(buffer_person_model_.data()),
                                                                   thrust::raw_pointer_cast(buffer_person_color_.data()),

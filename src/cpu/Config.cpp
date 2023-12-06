@@ -38,7 +38,7 @@ void Config::readConfigFile(std::string file_path) {
                 }
             }
         }
-        n_people_1_pop[p_index] = 10000;
+//        n_people_1_pop[p_index] = 10000;
         n_people_1_pop[p_index] = (uint64_t) (n_people_1_pop[p_index] * max_pop_factor);
         printf("n_people_1_pop[%d]: %llu\n", p_index, n_people_1_pop[p_index]);
     }

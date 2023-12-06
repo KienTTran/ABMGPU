@@ -9,3 +9,6 @@ populations: [
   ../input/population_2.asc,
   ../input/population_1.asc,
   ]
+
+entity:
+  velocity: 0.000005

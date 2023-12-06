@@ -66,9 +66,9 @@ Using `OpenGL`, you can instance as many objects as you want using `SSBO` and co
 4. On Window:
       - Use any IDE (I'm using `CLion`) supports `CMake` project to load the project folder
       - Edit the CMakeList file to match your `vcpkg cmake` file and `CUDA` installation folder on your computer.
-      - Build and run
+      - Build and run with arguments: `-i <path to config file>` (e.g. `-i ../../input/config.yaml`)
 6. On Linux:
       - Edit the CMakeList file to match your `vcpkg cmake` file and `CUDA` installation folder on your computer.
-      - In the project folder, type `mkdir build && cd build && cmake ..` then execute the binary built
+      - In the project folder, type `mkdir build && cd build && cmake ..` then execute the binary built with arguments: `-i <path to config file>` (e.g. `./ABMGPU -i ../../input/config.yaml`)
 8. Star :star2:, issue and pull request are welcomed
    
