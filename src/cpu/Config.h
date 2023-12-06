@@ -26,6 +26,7 @@ public:
     uint64_t max_people_1_pop = 0;
 
     float entity_velocity = 0.1f;
+    bool is_window_rendered = false;
 
 public:
     Config();

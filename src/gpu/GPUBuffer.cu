@@ -89,12 +89,11 @@ __global__ void adjust_person_entity(uint64_t work_batch, double i, float width,
     for (uint64_t index = thread_index; index < work_batch; index += stride) {
         people[index].id = people[index].id + (int)i;
         glm::mat4 model = people_models[index];
-        float velocity = config_velocity;
         float x_n1_1 = (curand_uniform(&localState)-0.5f)*2.0f;
         float y_n1_1 = (curand_uniform(&localState)-0.5f)*2.0f;
-        float x = x_n1_1*velocity;
-        float y = y_n1_1*velocity;
-        float rot = curand_uniform(&localState)*360.0f*velocity;
+        float x = x_n1_1*config_velocity;
+        float y = y_n1_1*config_velocity;
+        float rot = curand_uniform(&localState)*360.0f*config_velocity;
         model = translate(model, glm::vec3(x, y, 0.0f));
         model = translate(model, glm::vec3(0.0f, 0.0f, 1.0f));
         model = rotate(model, rot, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -226,8 +225,10 @@ __host__ __device__ void GPUBuffer::update(){
 void GPUBuffer::updateThread() {
     printf("updateThread\n");
     while (true) {
+        if(!Config::getInstance().is_window_rendered) break;
         update();
     }
+    return;
 }
 
 void GPUBuffer::join() {

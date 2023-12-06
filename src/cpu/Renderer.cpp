@@ -40,6 +40,7 @@ void Renderer::init(GPUEntity* gpu_entity, int width, int height) {
     camera_view_center = glm::vec2(window_width/2.0f,window_height/2.0f);
     camera_center_x = -(double)window_width/2.0;
     camera_center_y = (double)window_height/2.0;
+    Config::getInstance().is_window_rendered = true;
 
     gpu_entity_ = gpu_entity;
 }
@@ -105,8 +106,6 @@ void Renderer::render() {
 
     gpu_entity_->initRender(window_width,window_height);
 
-    glfwMakeContextCurrent(renderer_window);
-
     double previousTime = glfwGetTime();
 
     while (!glfwWindowShouldClose(renderer_window))
@@ -149,10 +148,13 @@ void Renderer::render() {
 
         if (glfwGetKey(renderer_window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
             glfwSetWindowShouldClose(renderer_window, true);
-            exit(0);
+            Config::getInstance().is_window_rendered = false;
+            return;
         }
     }
     glfwTerminate();
+    Config::getInstance().is_window_rendered = false;
+    return;
 }
 
 void Renderer::renderGUI() {
