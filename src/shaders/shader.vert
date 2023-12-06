@@ -1,4 +1,4 @@
-#version 450 core
+#version 460 core
 layout (location = 0) in vec4 in_pos;
 layout (location = 1) in vec4 in_color;
 layout(std430, binding = 2) buffer BufferModel
@@ -17,8 +17,8 @@ out vec4 out_color;
 
 void main()
 {
-    out_color = buff_color.in_colors[gl_InstanceID];
-    gl_Position = projection * view * buff_model.in_models[gl_InstanceID] * in_pos;
+    out_color = buff_color.in_colors[gl_BaseInstance+gl_InstanceID];
+    gl_Position = projection * view * buff_model.in_models[gl_BaseInstance+gl_InstanceID] * in_pos;
 //    out_color = in_color;
 //    gl_Position = projection * view * in_pos;
 

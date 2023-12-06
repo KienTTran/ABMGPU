@@ -2,8 +2,8 @@
 // Created by kient on 6/17/2023.
 //
 
-#ifndef MASS_MODEL_H
-#define MASS_MODEL_H
+#ifndef ABMGPU_MODEL_H
+#define ABMGPU_MODEL_H
 
 
 #include "../utils/GPURandom.cuh"
@@ -24,4 +24,4 @@ public:
 };
 
 
-#endif //MASS_MODEL_H
+#endif //ABMGPU_MODEL_H

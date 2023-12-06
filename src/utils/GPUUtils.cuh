@@ -2,8 +2,8 @@
 // Created by kient on 6/17/2023.
 //
 
-#ifndef MASS_GPUUTILS_CUH
-#define MASS_GPUUTILS_CUH
+#ifndef ABMGPU_GPUUTILS_CUH
+#define ABMGPU_GPUUTILS_CUH
 
 #include <iostream>
 
@@ -20,4 +20,4 @@ class GPUUtils {
 };
 
 
-#endif //MASS_GPUUTILS_CUH
+#endif //ABMGPU_GPUUTILS_CUH

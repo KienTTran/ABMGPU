@@ -2,8 +2,10 @@
 // Created by kient on 6/16/2023.
 //
 
+#include <random>
 #include "Renderer.h"
 #include "Config.h"
+#include "../utils/Thread.h"
 
 Renderer::Renderer() {
     window_width = 0;
@@ -37,28 +39,31 @@ void Renderer::init(GPUEntity* gpu_entity, int width, int height) {
     mouse_position = glm::vec2(window_width/2.0f,window_height/2.0f);
     mouse_drag_center_start = glm::vec2(window_width/2.0f,window_height/2.0f);
     mouse_drag_center_current = glm::vec2(window_width/2.0f,window_height/2.0f);
-    camera_view_center = glm::vec2(window_width/2.0f,window_height/2.0f);
-    camera_center_x = -(double)window_width/2.0;
+    camera_view_center = glm::vec2(0.0f,0.0f);
+    camera_center_x = (double)window_width/2.0;
     camera_center_y = (double)window_height/2.0;
+    Config::getInstance().is_window_rendered = true;
 
     gpu_entity_ = gpu_entity;
 }
 
-void Renderer::detach(){
-    glfwMakeContextCurrent(NULL);
-    render_thread = std::thread(&Renderer::render,this);
-    render_thread.detach();
-}
-
-void Renderer::render() {
-    printf("Renderer::render()\n");
+void Renderer::start() {
+    printf("[Renderer] Started\n");
 
     if (!glfwInit()) exit(EXIT_FAILURE);
     if (atexit(glfwTerminate)) { glfwTerminate(); exit(EXIT_FAILURE); }
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    renderer_window = glfwCreateWindow(window_width, window_height, "MASS", NULL, NULL);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    // Core profile means no backward compatibility
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    // Allow forward compatibility
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+
+    renderer_window = glfwCreateWindow(window_width, window_height, "ABMGPU", NULL, NULL);
+
+    glfwMakeContextCurrent(renderer_window);
 
     glfwSetWindowUserPointer(renderer_window, this);
     auto framebufferSizeCallback = [](GLFWwindow* w, int x, int y)
@@ -81,11 +86,16 @@ void Renderer::render() {
         static_cast<Renderer*>(glfwGetWindowUserPointer(w))->mouseScrollCallbackImpl(w,x,y);
     };
     glfwSetScrollCallback(renderer_window, mouseScrollCallback);
+    auto keyCallback = [](GLFWwindow *w, int k, int s, int a, int m)
+    {
+        static_cast<Renderer*>(glfwGetWindowUserPointer(w))->keyCallbackImpl(w,k,s,a,m);
+    };
+    glfwSetKeyCallback(renderer_window, keyCallback);
+
     glfwSetInputMode(renderer_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glfwSetWindowAspectRatio(renderer_window, window_width, window_height);
 
     if (!renderer_window) exit(EXIT_FAILURE);
-    glfwMakeContextCurrent(renderer_window);
 
     glfwSwapInterval(1);
 
@@ -105,54 +115,90 @@ void Renderer::render() {
 
     gpu_entity_->initRender(window_width,window_height);
 
-    glfwMakeContextCurrent(renderer_window);
-
     double previousTime = glfwGetTime();
-
+    int render_mode = GL_POINTS;
+    int render_count = 1;
+    int render_size = 0;
+    Config::getInstance().is_window_rendered = true;
     while (!glfwWindowShouldClose(renderer_window))
     {
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        glm::mat4 projection = glm::ortho(static_cast<float>(camera_center_x)-(static_cast<float>(width_scaled)/2.0f),
+        projection = glm::ortho(static_cast<float>(camera_center_x)-(static_cast<float>(width_scaled)/2.0f),
                                           static_cast<float>(camera_center_x)+(static_cast<float>(width_scaled)/2.0f),
                                           static_cast<float>(camera_center_y)-(static_cast<float>(height_scaled)/2.0f),
                                           static_cast<float>(camera_center_y)+(static_cast<float>(height_scaled)/2.0f), -1.0f, 1.0f);
 
-        glm::mat4 view = glm::mat4(1.0f);
-        view = translate(view, glm::vec3(-camera_view_center.x,camera_view_center.y, 0.0f));
-
+        view = glm::mat4(1.0f);
+        view = translate(view, glm::vec3(camera_view_center.x,camera_view_center.y, 0.0f));
+        gpu_entity_->population_->h_view_mat = view;
+        gpu_entity_->population_->h_projection_mat = projection;
         for(int p_index = 0; p_index < Config::getInstance().n_pops; p_index++) {
+            previousTime = glfwGetTime();
             gpu_entity_->shader[p_index]->use();
             gpu_entity_->shader[p_index]->setMat4("view", view);
             gpu_entity_->shader[p_index]->setMat4("projection", projection);
-            gpu_entity_->update(p_index);
             glBindVertexArray(gpu_entity_->VAO[p_index]);
             glBindBuffer(GL_ARRAY_BUFFER, gpu_entity_->VBO[p_index][0]);
             glBindBuffer(GL_ARRAY_BUFFER, gpu_entity_->VBO[p_index][1]);
             glBindBuffer(GL_ARRAY_BUFFER, gpu_entity_->EBO[p_index]);
+            glBindBuffer(GL_DRAW_INDIRECT_BUFFER, gpu_entity_->CMD[p_index]);
             glBindBuffer(GL_SHADER_STORAGE_BUFFER, gpu_entity_->SSBO[p_index][0]);
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, gpu_entity_->SSBO[p_index][0]);//bind to binding point 3 in shader.vert
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, gpu_entity_->SSBO[p_index][0]);//bind to binding point 2 in shader.vert
             glBindBuffer(GL_SHADER_STORAGE_BUFFER, gpu_entity_->SSBO[p_index][1]);
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, gpu_entity_->SSBO[p_index][1]);//bind to binding point 3 in shader.vert
-            glDrawArraysInstanced(GL_TRIANGLES, 0, 3, gpu_entity_->population_->h_population[p_index].size());
-
+            if(height_scaled < 30.0f){
+                render_mode = GL_TRIANGLES;
+                render_count = 3;
+            }
+            else{
+                render_mode = GL_POINTS;
+                render_count = 1;
+            }
+            if(Config::getInstance().render_adaptive){
+                render_size = gpu_entity_->population_->h_people_render_indices[p_index].size();
+                for(int r_index = 0; r_index < render_size; r_index++) {
+                    glDrawArraysInstancedBaseInstance(
+                            render_mode,      // type of primitive to render
+                            0,                 // vertex count
+                            render_count,   // type of each index in the GL_ELEMENT_ARRAY_BUFFER
+                            1,                 // Number of copies to render
+                            gpu_entity_->population_->h_people_render_indices[p_index][r_index]  // Number to start from for InstanceId
+                    );
+                }
+            }
+            else{
+                render_size = gpu_entity_->population_->n_people_1_pop_current[p_index];
+                glDrawElementsInstanced(render_mode, render_count, GL_UNSIGNED_INT, (void*)0, render_size);
+            }
             double currentTime = glfwGetTime();
             double time  = currentTime - previousTime;
+            if(Config::getInstance().test_debug){
+//                printf("[Renderer] Pop %d render %zd/%zd objects time: %f ms\n",p_index,
+//                       gpu_entity_->population_->h_people_render_indices[p_index].size(),
+//                       gpu_entity_->population_->h_population[p_index].size(),
+//                       time);
+            }
+//            printf("[Renderer] Pop %d render %zd/%zd objects time: %f ms\n",p_index,
+//                   gpu_entity_->population_->h_people_render_indices[p_index].size(),
+//                   gpu_entity_->population_->n_people_1_pop_current[p_index],
+//                   time);
         }
 
         glfwSwapBuffers(renderer_window);
         glBindVertexArray(0);
 
         glfwPollEvents();
-        renderGUI();
-
-        if (glfwGetKey(renderer_window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
-            glfwSetWindowShouldClose(renderer_window, true);
-            exit(0);
-        }
     }
     glfwTerminate();
+    Config::getInstance().is_window_rendered = false;
+    return;
+}
+
+void Renderer::startThread(){
+    glfwMakeContextCurrent(NULL);
+    render_thread = std::thread(&Renderer::start,this);
+    render_thread.join();
 }
 
 void Renderer::renderGUI() {
@@ -179,11 +225,12 @@ void Renderer::mouseCursorCallbackImpl(GLFWwindow* window, double x_pos_in, doub
 {
     mouse_input_x = x_pos_in;
     mouse_input_y = y_pos_in;
+    mouse_input_y = window_height - mouse_input_y;//OGL is from bottom left, GLFW is from top left
     mouse_position = glm::ivec2( mouse_input_x, mouse_input_y );
 
     if(is_drag_mode){
         mouse_drag_center_current = unProjectPlane( glm::dvec2( mouse_input_x, mouse_input_y ) );
-        camera_view_center += ( mouse_drag_center_start - mouse_drag_center_current) * drag_speed;
+        camera_view_center += ( mouse_drag_center_current - mouse_drag_center_start) * drag_speed;
         mouse_drag_center_start = unProjectPlane( glm::dvec2( mouse_input_x, mouse_input_y) );
     }
 }
@@ -212,7 +259,6 @@ void Renderer::mouseButtonCallbackImpl(GLFWwindow* window, int button, int actio
 void Renderer::mouseScrollCallbackImpl(GLFWwindow* window, double x_offset, double y_offset)
 {
     mouse_position = glm::ivec2( mouse_input_x, mouse_input_y );
-    mouse_input_y = window_height - mouse_input_y;
     double x = mouse_input_x/window_width - 0.5f;
     double y = mouse_input_y/window_width - 0.5f;
     double preX = ( x * width_scaled );
@@ -238,6 +284,25 @@ void Renderer::mouseScrollCallbackImpl(GLFWwindow* window, double x_offset, doub
     double postY = ( y * height_scaled );
     camera_center_x += ( preX - postX );
     camera_center_y += ( preY - postY );
+
+}
+
+void Renderer::keyCallbackImpl(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE){
+        glfwSetWindowShouldClose(renderer_window, true);
+        Config::getInstance().is_window_rendered = false;
+    }
+    if (key == GLFW_KEY_A && action == GLFW_RELEASE){
+        gpu_entity_->population_->add_person_mtx.lock();
+        gpu_entity_->population_->add_person = true;
+        gpu_entity_->population_->add_person_mtx.unlock();
+    }
+    if (key == GLFW_KEY_R && action == GLFW_RELEASE){
+        gpu_entity_->population_->remove_person_mtx.lock();
+        gpu_entity_->population_->remove_person = true;
+        gpu_entity_->population_->remove_person_mtx.unlock();
+    }
 }
 
 glm::dvec3 Renderer::unProject( const glm::dvec3& win )

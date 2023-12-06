@@ -2,22 +2,37 @@
 // Created by kient on 6/16/2023.
 //
 
-#ifndef MASS_GPUENTITY_CUH
-#define MASS_GPUENTITY_CUH
+#ifndef ABMGPU_GPUENTITY_CUH
+#define ABMGPU_GPUENTITY_CUH
 
 #include "GL/glew.h"
 #include <cuda_gl_interop.h>
+#include <thrust/count.h>
+#include <thrust/device_vector.h>
+#include <thrust/execution_policy.h>
+#include <thrust/copy.h>
+#include <thrust/iterator/counting_iterator.h>
+#include <thrust/functional.h>
+#include <thrust/gather.h>
+#include <thrust/iterator/counting_iterator.h>
+#include <thrust/iterator/permutation_iterator.h>
+#include <thrust/functional.h>
+#include <thrust/copy.h>
+#include <thrust/device_vector.h>
+#include <iostream>
+#include <thrust/sequence.h>
 #include "../utils/Shader.h"
 #include "../gpu/Population.cuh"
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/vec2.hpp>
 
-typedef  struct {
-    int  count;
-    int  instanceCount;
-    int  first;
-    int  baseInstance;
-} DrawArraysIndirectCommand;
+typedef struct {
+    GLuint count;
+    GLuint primCount;
+    GLuint firstIndex;
+    GLuint baseVertex;
+    GLuint baseInstance;
+} DrawElementsIndirectCommand;
 
 class GPUEntity {
 public:
@@ -36,25 +51,15 @@ public:
     Population* population_;
     std::vector<std::vector<glm::vec4>> entity_vertices;
     std::vector<std::vector<glm::vec4>> entity_colors;
+    glm::mat4 projection;
+    glm::mat4 view;
     GLint entity_indices[3] = {0,1,2};
+//    GLint entity_indices[6] = {0,1,2,0,1,3};
     GLuint **VBO;
     GLuint *EBO;
     GLuint **SSBO;
-    int window_width;
-    int window_height;
-
-    struct cudaGraphicsResource **cuda_buffer_model;
-    size_t *ogl_buffer_model_num_bytes; // to get models data from gpu_buffer
-    glm::mat4 **ogl_buffer_model_ptr;
-
-    struct cudaGraphicsResource **cuda_buffer_color;
-    size_t *ogl_buffer_color_num_bytes;// to get colors data from gpu_buffer
-    glm::vec4 **ogl_buffer_color_ptr;
-
-
-    int n_threads = 1024;
-    int *n_blocks;
+    GLuint *CMD;
 };
 
 
-#endif //MASS_GPUENTITY_CUH
+#endif //ABMGPU_GPUENTITY_CUH

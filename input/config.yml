@@ -1,14 +1,34 @@
+GPU:
+  people_1_batch: 5000000
+  p_people_1_batch_step: 0.25
+  p_max_mem_allow: 1.0
+  max_pop_factor: 1.2 #adjust this after adjust popsize
+
 window:
   width: 1280
   height: 720
 
-populations: [
-  ../input/population_1.asc,
-  ../input/population_2.asc,
-  ../input/population_1.asc,
-  ../input/population_2.asc,
-  ../input/population_1.asc,
-  ]
+render:
+  GUI: true
+  max_objects: 1000000
+  adaptive: false
+  point_coord: 0.05
 
-entity:
-  velocity: 0.000005
+test:
+  width: 0
+  height: 0
+  update: true
+  debug: false
+
+velocity: 0.0005
+birth_rate: 0.03725
+death_rate: 0.053979329
+
+# remember to adjust max_pop_factor after adjust popsize
+populations: [
+#  ../input/population_test.asc,
+#  ../input/population_test_1.asc,
+#  ../input/population_test_2.asc,
+  ../input/population_test_3.asc,
+#  ../input/population_1.asc,
+  ]

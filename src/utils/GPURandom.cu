@@ -21,11 +21,14 @@ __global__ void setup(curandState *state)
 }
 
 void GPURandom::init(int n) {
-    cudaFree(d_states);
     cudaMalloc((void **) &d_states, sizeof(curandState) * n);
-    n_blocks = (n + n_threads - 1) / n_threads;
+    n_blocks = (n + n_threads + 1) / n_threads;
     setup<<<n_blocks,n_threads>>>(d_states);
     checkCudaErr(cudaDeviceSynchronize());
     checkCudaErr(cudaPeekAtLastError());
+}
+
+void GPURandom::free() {
+    cudaFree(d_states);
 }
 

@@ -2,6 +2,11 @@
 // Created by kient on 6/17/2023.
 //
 
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
 #include "Model.h"
 
 Model::Model() {
@@ -21,6 +26,13 @@ void Model::init() {
 }
 
 void Model::run() {
-    renderer->detach();//render h_population detached
-    gpu_buffer->join();//compute on h_population using gpu buffer
+    if(Config::getInstance().render_gui){
+        std::thread buffer_thread(&GPUBuffer::start, gpu_buffer);
+        renderer->start();
+        buffer_thread.join();
+    }
+    else{
+        gpu_buffer->start();
+    }
+
 }

@@ -2,8 +2,8 @@
 // Created by kient on 6/17/2023.
 //
 
-#ifndef MASS_GPURANDOM_CUH
-#define MASS_GPURANDOM_CUH
+#ifndef ABMGPU_GPURANDOM_CUH
+#define ABMGPU_GPURANDOM_CUH
 
 #include <curand_kernel.h>
 
@@ -22,7 +22,8 @@ public:
     }
 
     void init(int n);
+    void free();
 };
 
 
-#endif //MASS_GPURANDOM_CUH
+#endif //ABMGPU_GPURANDOM_CUH
