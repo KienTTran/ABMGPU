@@ -1,23 +1,26 @@
 # ABMGPU
 | :tada: Demo of agent based model on GPU using CUDA 12.2.1 and OpenGL 4.5 (Windows/Linux) :tada: |
 
-A demo of using CUDA and OpenGL to render different populations with multiple agents with their own properties.\
+A demo of using CUDA and OpenGL to render different locations with multiple agents with their own properties.\
 This is a useful begin place for those want to illustrate or experiment how an agent based model works.\
 You can update the `adjust_person_entity` function in `src/gpu/GPUBuffer.cu` to change the moving path and color of each agent.
 
 :dart: Each triangle is an agent with different color and trajectory.\
 :dart: On GTX 3060 the software can render 5-10M agents without problem.
 
-:flower_playing_cards: The image below illustrates a demo of 12,000 agents each population (60,000 agents in total) for easier observation.
+:flower_playing_cards: The image below illustrates a demo of 12,000 agents each location (60,000 agents in total) for easier observation.
 
 In this demo, each triangle is an independent agent and it has two properties: color and moving path.\
-The color is assigned by the population so all agents in the same population will have the same color.\
+The color is assigned by the location so all agents in the same location will have the same color.\
 The moving trajectory is randomized for each agent.
 
 ![](https://github.com/KienTTran/ABMGPU/blob/master/ABMGPU.gif)
 
-:flower_playing_cards: The image below illustrates a demo of ~500,000 agents of 10x10 populations configured a from GIS raster file where each population has a random number of agents. ( this demo is from `dev`branch).
+:flower_playing_cards: The image below illustrates a demo of ~500,000 agents of 100 (10x10) locations configured a from GIS raster file where each location has a random number of agents. This demo is from `dev`branch.
 ![](https://github.com/KienTTran/ABMGPU/blob/master/ABMGPU_dev.gif)
+
+:flower_playing_cards: The image below illustrates a demo of ~15,000,000 agents of 21,798 (173x126) locations configured a from GIS raster file of Burkina Faso. Moreover, the population is dynamically changed based on census data. This version will be released soon.
+![](https://github.com/KienTTran/ABMGPU/blob/master/ABMGPU_dev_2.gif)
 
 | :gem: Features :gem: |
 
@@ -28,7 +31,8 @@ The moving trajectory is randomized for each agent.
 :white_check_mark: Dynamic camera views in OpenGL (pan,zoom with mouse)\
 :white_check_mark: Libraries installed using vcpkg\
 :white_check_mark: Load configuration as YAML file\
-:white_check_mark: Load population data in GIS raster file (.asc file)\
+:white_check_mark: Load location data in GIS raster file (.asc file)\
+:soon: Update number of agents dynamically based on census data\
 :warning: Code is dirty and buggy
    
 | :books: Libraries :books: |
