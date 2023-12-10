@@ -19,7 +19,7 @@ The moving trajectory is randomized for each agent.
 :flower_playing_cards: The image below illustrates a demo of ~500,000 agents of 100 (10x10) locations configured a from GIS raster file where each location has a random number of agents. This demo is from `dev`branch.
 ![](https://github.com/KienTTran/ABMGPU/blob/master/ABMGPU_dev.gif)
 
-:flower_playing_cards: The image below illustrates a demo of ~15,000,000 agents of 21,798 (173x126) locations configured a from GIS raster file of Burkina Faso. Moreover, the population is dynamically changed based on census data. This version will be released soon.
+:flower_playing_cards: The image below illustrates a demo of ~15,000,000 agents of 21,798 (173x126) locations configured a from GIS raster file of Burkina Faso. Moreover, the population is dynamically changed based on census data. The color of each agent is based on the population density of each location. This version will be released soon.
 ![](https://github.com/KienTTran/ABMGPU/blob/master/ABMGPU_dev_2.gif)
 
 | :gem: Features :gem: |
