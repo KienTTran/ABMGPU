@@ -10,14 +10,16 @@
 #include "imgui_impl_opengl3.h"
 #include <iostream>
 #include <stdlib.h>
-#include "../gpu/GPUEntity.cuh"
+#include "../gpu/RenderEntity.cuh"
 #include <GLFW/glfw3.h>
 #include <chrono>
 #include <thread>
 
+class Model;
+
 class Renderer {
 public:
-    Renderer();
+    explicit Renderer(Model *model = nullptr);
     ~Renderer();
 
     static Renderer& getInstance() // Singleton is accessed via getInstance()
@@ -26,9 +28,8 @@ public:
         return instance;
     }
 
-    void init(GPUEntity* gpu_entity, int width, int height);
-    void render();
-    void detach();
+    void init(RenderEntity* gpu_entity);
+    void start();
 
 private:
     void renderGUI();
@@ -36,14 +37,18 @@ private:
     void mouseCursorCallbackImpl(GLFWwindow* window, double x_pos_in, double y_pos_in);
     void mouseButtonCallbackImpl(GLFWwindow* window, int button, int action, int mods);
     void mouseScrollCallbackImpl(GLFWwindow* window, double x_offset, double y_offset);
+    void keyCallbackImpl(GLFWwindow* window, int key, int scancode, int action, int mods);
     glm::dvec3 unProject( const glm::dvec3& win );
     glm::dvec2 unProjectPlane( const glm::dvec2& win );
 
 public:
-    GPUEntity *gpu_entity_;
+    Model* model_;
+    RenderEntity *render_entity_;
+    Population* population_;
     int window_width;
     int window_height;
     std::thread render_thread;
+    std::thread update_thread;
 
 public:
     double width_scaled;
@@ -62,6 +67,8 @@ public:
     double camera_center_x;
     double camera_center_y;
     GLFWwindow* renderer_window;
+    glm::mat4 projection;
+    glm::mat4 view;
 };
 
 

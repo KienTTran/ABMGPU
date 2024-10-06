@@ -21,7 +21,8 @@ public:
         return instance;
     }
 
-    void init(int n);
+    void init(int n, long seed);
+    void free();
 };
 
 

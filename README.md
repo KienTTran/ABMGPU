@@ -32,7 +32,7 @@ The moving trajectory is randomized for each agent.
 :white_check_mark: Libraries installed using vcpkg\
 :white_check_mark: Load configuration as YAML file\
 :white_check_mark: Load location data in GIS raster file (.asc file)\
-:soon: Update number of agents dynamically based on census data\
+:white_check_mark: Update number of agents dynamically based on census data\
 :warning: Code is dirty and buggy
    
 | :books: Libraries :books: |
