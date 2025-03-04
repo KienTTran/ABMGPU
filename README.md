@@ -41,6 +41,9 @@ vcpkg install glfw3 opengl glew glm imgui[core,glfw-binding,opengl3-binding] eas
 
 | :pencil: Citation :pencil: |
 
+This repo is a GPU implementation of original CPU based simulation from https://github.com/maciekboni/PSU-CIDD-Malaria-Simulation, which was originally developed by Nguyen Tran.
+The spatial (raster/Burkia Faso movement model) part was implemented by Robert Zupko. Kien Tran implemented display and GPU processing.
+
 ```
 Tran, K. T., Tran, N., & Zupko, R. (2025). Agent based simulation using GPU and OpenGL.
 Zenodo. [https://doi.org/10.5281/zenodo.14967981](https://zenodo.org/records/14967981)
