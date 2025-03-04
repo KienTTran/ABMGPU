@@ -42,12 +42,13 @@ vcpkg install glfw3 opengl glew glm imgui[core,glfw-binding,opengl3-binding] eas
 | :pencil: Citation :pencil: |
 
 ```
-Tran, K. T., & Tran, N. (2025). Agent based simulation using GPU and OpenGL. Zenodo. https://doi.org/10.5281/zenodo.14967981
+Tran, K. T., Tran, N., & Zupko, R. (2025). Agent based simulation using GPU and OpenGL.
+Zenodo. [https://doi.org/10.5281/zenodo.14967981](https://zenodo.org/records/14967981)
 ```
 or 
 ```
 @software{Tran_Agent_based_simulation_2023,
-author = {{Tran, Kien Trung},{Tran, Nguyen Dang}},
+author = {{Tran, Kien Trung},{Tran, Nguyen Dang},{Zupko, Robert}},
 doi = {10.5281/zenodo.14967981},
 month = dec,
 title = {{Agent based simulation using GPU and OpenGL}},
