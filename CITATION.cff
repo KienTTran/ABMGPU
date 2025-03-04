@@ -5,7 +5,7 @@ authors:
   given-names: "Kien Trung"
   orcid: "https://orcid.org/0000-0003-3046-8547"
 title: "Agent based simulation using GPU and OpenGL"
-version: 1.0.0
-doi: 10.5281/zenodo.10263352
-date-released: 2023-12-04
+version: 1.0.1
+doi: 10.5281/zenodo.14967981
+date-released: 2025-03-04
 url: "https://github.com/KienTTran/ABMGPU"
