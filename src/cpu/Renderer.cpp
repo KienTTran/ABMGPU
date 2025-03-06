@@ -161,7 +161,7 @@ void Renderer::start() {
         }
         glDrawElementsInstanced(render_mode, render_count, GL_UNSIGNED_INT, (void*)0, pi->size());
         if(Model::CONFIG->debug_config().enable_debug_render_text){
-            printf("[Renderer] Render time: %f ms\n",glfwGetTime() - start_time_all,time);
+            printf("[Renderer] Render time: %f ms\n",glfwGetTime() - start_time_all);
         }
 
         glfwSwapBuffers(renderer_window);

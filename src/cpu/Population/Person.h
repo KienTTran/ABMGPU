@@ -11,7 +11,6 @@
 #include "Properties/PersonIndexAllHandler.h"
 #include "Properties/PersonIndexToRenderHandler.h"
 #include "Properties/PersonIndexByLocationStateAgeClassHandler.h"
-#include "../Parasite/Parasite.h"
 
 class Population;
 
@@ -50,7 +49,6 @@ public:
     PROPERTY_HEADER(int, age);
     PROPERTY_HEADER(int, age_class)
     POINTER_PROPERTY(Population, population)
-    thrust::host_vector<Parasite*> parasites;
 public:
     Person();
     virtual ~Person();

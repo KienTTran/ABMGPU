@@ -2,6 +2,7 @@ gpu_config:
   n_threads: 1024
   people_1_batch: 102400000
   pre_allocated_mem_ratio: 1.5
+  population_scale: 0.25
 
 render_config:
   window_width: 1280

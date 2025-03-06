@@ -22,7 +22,6 @@
 #include "../Events/Event.h"
 #include "../../cpu/Population/Person.h"
 #include "../Population/Properties/PersonIndex.h"
-#include "../Parasite/Parasite.h"
 
 typedef unsigned long ul;
 
@@ -71,15 +70,13 @@ typedef thrust::host_vector<ThrustGLVec4VectorHost2> ThrustGLVec4VectorHost3;
 typedef thrust::host_vector<ThrustGLVec4VectorHost3> ThrustGLVec4VectorHost4;
 typedef thrust::host_vector<ThrustGLVec4VectorHost4> ThrustGLVec4VectorHost5;
 
-typedef  thrust::host_vector<Parasite*> ThrustParasitePtrVectorHost;
-typedef thrust::host_vector<thrust::host_vector<Parasite*>> ThrustParasitePtrVectorHost2;
-
 typedef std::list<PersonIndex *> PersonIndexPtrList;
 
 struct GPUConfig{
     int n_threads;
     int people_1_batch;
     double pre_allocated_mem_ratio;
+    double population_scale;
     friend std::ostream &operator<<(std::ostream &os, const GPUConfig &mcf) {
         os << "gpu_config";
         return os;

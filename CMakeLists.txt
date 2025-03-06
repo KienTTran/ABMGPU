@@ -9,12 +9,12 @@ if(WIN32)
     set(CMAKE_TOOLCHAIN_FILE "D:/SDK/vcpkg/scripts/buildsystems/vcpkg.cmake")
 else()
     set(CMAKE_CUDA_COMPILER "/usr/local/cuda/bin/nvcc")
-    set(CMAKE_TOOLCHAIN_FILE "/mnt/d/SDK/vcpkg/scripts/buildsystems/vcpkg.cmake")
+    set(CMAKE_TOOLCHAIN_FILE "/home/ktt/SDK/vcpkg/scripts/buildsystems/vcpkg.cmake")
 endif()
 
 #vcpkg install glfw3 opengl glew glm imgui[core,glfw-binding,opengl3-binding] easyloggingpp date yaml-cpp
 
-project(MASS LANGUAGES CXX CUDA)
+project(ABMGPU LANGUAGES CXX CUDA)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
@@ -110,10 +110,6 @@ add_executable(${PROJECT_NAME}
         src/cpu/Population/Properties/PersonIndexGPU.h
         src/cpu/Population/Properties/PersonIndexToRenderHandler.cpp
         src/cpu/Population/Properties/PersonIndexToRenderHandler.h
-        src/cpu/Parasite/Genotype.cpp
-        src/cpu/Parasite/Genotype.h
-        src/cpu/Parasite/Parasite.h
-        src/cpu/Parasite/Parasite.cpp
 )
 
 set_target_properties(
@@ -175,8 +171,8 @@ if(WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE opengl32)
 
 else()
-    target_include_directories(${PROJECT_NAME} PUBLIC "/mnt/d/SDK/vcpkg/installed/x64-linux/include")
-    target_link_directories(${PROJECT_NAME} PUBLIC "/mnt/d/SDK/vcpkg/installed/x64-linux/lib")
+    target_include_directories(${PROJECT_NAME} PUBLIC "/home/ktt/SDK/vcpkg/installed/x64-linux/include")
+    target_link_directories(${PROJECT_NAME} PUBLIC "/home/ktt/SDK/vcpkg/installed/x64-linux/lib")
     set(CMAKE_CUDA_COMPILER "/usr/local/cuda/bin/nvcc")
     include_directories("/usr/local/cuda/include")
     include_directories("/usr/local/include")

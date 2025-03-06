@@ -37,7 +37,6 @@ public:
     thrust::host_vector<Person*> buffer_person_;
     thrust::device_vector<glm::mat4> buffer_person_models_;
     thrust::device_vector<glm::vec4> buffer_person_colors_;
-    thrust::device_vector<Parasite*> buffer_person_parasites_;
 
     struct cudaGraphicsResource *d_cuda_buffer_model_render;
     size_t d_ogl_buffer_model_num_bytes_render; // to get models data from gpu_buffer

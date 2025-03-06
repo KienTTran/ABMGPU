@@ -57,6 +57,7 @@ namespace YAML {
             gcfd.n_threads = node["n_threads"].as<int>();
             gcfd.people_1_batch = node["people_1_batch"].as<int>();
             gcfd.pre_allocated_mem_ratio = node["pre_allocated_mem_ratio"].as<double>();
+            gcfd.population_scale = node["population_scale"].as<double>();
             return true;
         }
     };

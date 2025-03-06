@@ -286,7 +286,7 @@ void SpatialData::load_raster(SpatialFileType type) {
 //                        LOG(WARNING) << fmt::format("Population data lost at row {}, col {}, value {}", row, col, values->data[row][col]);
                         printf("Population data lost at row %d, col %d, value %f\n", row, col, values->data[row][col]);
                     }
-                    location_db[id].population_size = static_cast<int>(values->data[row][col]);
+                    location_db[id].population_size = static_cast<int>(values->data[row][col]) * Model::CONFIG->gpu_config().population_scale;
                     location_db[id].location_cols = static_cast<int>(values->NCOLS);
                     location_db[id].location_rows = static_cast<int>(values->NROWS);
                     Model::CONFIG->n_people_init() += static_cast<int>(values->data[row][col]);

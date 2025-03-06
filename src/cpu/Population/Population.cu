@@ -121,8 +121,8 @@ void Population::initPop(){
         int temp_sum = 0;
         int last_temp_sum = 0;
         for (auto age_class = 0; age_class < number_of_init_age_classes; age_class++) {
-            int number_of_individual_by_loc_age_class = static_cast<int>(Model::CONFIG->location_db()[loc_index].population_size
-                                                                         * Model::CONFIG->location_db()[loc_index].age_distribution[age_class]);
+            int number_of_individual_by_loc_age_class = static_cast<int>(Model::CONFIG->location_db()[loc_index].population_size *
+                                                                        Model::CONFIG->location_db()[loc_index].age_distribution[age_class]);
 //            printf("[Population] Init loc %d ac %d (%d + %d)",loc_index, age_class, number_of_individual_by_loc_age_class,temp_sum);
             if(Model::CONFIG->location_db()[loc_index].population_size > temp_sum + number_of_individual_by_loc_age_class){
                 temp_sum += number_of_individual_by_loc_age_class;
