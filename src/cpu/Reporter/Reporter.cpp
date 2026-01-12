@@ -8,7 +8,6 @@
 
 #include "../Constants.h"
 #include "../Core/Config/Config.h"
-#include "easylogging++.h"
 #include "../MDC/ModelDataCollector.h"
 #include "../Model.h"
 #include "MonthlyReporter.h"
@@ -41,7 +40,7 @@ Reporter *Reporter::MakeReport(ReportType report_type) {
 //    case SEASONAL_IMMUNITY: return new SeasonalImmunity();
 //    case NULL_REPORTER: return new NullReporter();
     default:
-      LOG(ERROR) << "No reporter type supplied";
+      std::cout << "No reporter type supplied"<< std::endl;
       throw std::runtime_error("No reporter type supplied");
   }
 }

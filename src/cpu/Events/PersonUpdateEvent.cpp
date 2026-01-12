@@ -4,7 +4,6 @@
 
 #include "../Core/Scheduler.h"
 #include "../../cpu/Model.h"
-#include <easylogging++.h>
 #include "../Population/Population.cuh"
 #include "PersonUpdateEvent.h"
 
@@ -28,6 +27,6 @@ std::string PersonUpdateEvent::name() {
 
 void PersonUpdateEvent::execute() {
     //Update population here
-    LOG(INFO) << "Person Update Event executed at time: " << time;
+    std::cout << "Person Update Event executed at time: " << time<< std::endl;
     Model::POPULATION->update();
 }

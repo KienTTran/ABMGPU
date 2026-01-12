@@ -8,7 +8,7 @@
 
 #include <algorithm>
 #include <date/date.h>
-#include <easylogging++.h>
+#include <fstream>
 #include <fmt/format.h>
 #include <yaml-cpp/yaml.h>
 
@@ -70,7 +70,7 @@ class SeasonalInfoFactory {
       // If seasonality has been disabled then don't bother parsing the rest
       auto enabled = node["enable"].as<bool>();
       if (!enabled) {
-        VLOG(1) << "Seasonal information disabled.";
+        std::cout << "Seasonal information disabled."<< std::endl;
         return new SeasonalDisabled();
       }
 
@@ -87,11 +87,11 @@ class SeasonalInfoFactory {
       auto mode = node["mode"].as<std::string>();
       std::transform(mode.begin(), mode.end(), mode.begin(), ::toupper);
       if (mode == "EQUATION") {
-        LOG(INFO) << "Using equation-based seasonal information.";
+        std::cout << "Using equation-based seasonal information."<< std::endl;
         return SeasonalEquation::build(node, config);
       }
       if (mode == "RAINFALL") {
-        LOG(INFO) << "Using rainfall-based seasonal information.";
+        std::cout << "Using rainfall-based seasonal information."<< std::endl;
         return SeasonalRainfall::build(node);
       }
       throw std::runtime_error(fmt::format("Unknown seasonal mode {}", mode));

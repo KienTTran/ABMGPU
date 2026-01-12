@@ -6,7 +6,6 @@
 #include "Scheduler.h"
 
 #include <iomanip>
-#include "easylogging++.h"
 
 #include "../Core/Config/Config.h"
 #include "Dispatcher.h"
@@ -86,13 +85,16 @@ void Scheduler::schedule_event(EventPtrVector &time_events, Event *event) {
   // Schedule event in the future
   // Event time cannot exceed total available time or less than current time
   if (event->time > total_available_time() || event->time < current_time_) {
-    LOG_IF(event->time < current_time_, FATAL) << "Error when scheduling event " << event->name() << " at "
-                                               << event->time
-                                               << ". Current_time: " << current_time_ << " - total time: "
-                                               << total_available_time_;
-    VLOG(2) << "Cannot schedule event " << event->name() << " at " << event->time << ". Current_time: "
-            << current_time_ << " - total time: " << total_available_time_;
-    ObjectHelpers::delete_pointer<Event>(event);
+    if (event->time < current_time_)
+    {
+      std::cout << "Error when scheduling event " << event->name() << " at "
+                                                 << event->time
+                                                 << ". Current_time: " << current_time_ << " - total time: "
+                                                 << total_available_time_<< std::endl;
+      std::cout << "Cannot schedule event " << event->name() << " at " << event->time << ". Current_time: "
+              << current_time_ << " - total time: " << total_available_time_<< std::endl;
+      ObjectHelpers::delete_pointer<Event>(event);
+    }
   } else {
     time_events.push_back(event);
     event->scheduler = this;
@@ -115,7 +117,7 @@ void Scheduler::run() {
     throw std::runtime_error("Scheduler::run() called without model!");
   }
 
-  LOG(INFO) << "Simulation is running";
+  std::cout << "Simulation is running"<< std::endl;
   current_time_ = 0;
   for (current_time_ = 0; !can_stop(); current_time_++) {
     std::time_t t = std::time(nullptr);
@@ -130,9 +132,9 @@ void Scheduler::run() {
     execute_events_list(population_events_list_[current_time_]);
     model_->perform_population_events_daily();
 
-    LOG(INFO) << current_time() << " " << std::chrono::system_clock::to_time_t(calendar_date) <<
+    std::cout << current_time() << " " << std::chrono::system_clock::to_time_t(calendar_date) <<
               " " << date::format("%Y\t%m\t%d", calendar_date) <<
-              " " << " perform_individual_events_list";
+              " " << " perform_individual_events_list"<< std::endl;
     // Execute the individual related events
     execute_events_list(individual_events_list_[current_time_]);
 
@@ -140,7 +142,7 @@ void Scheduler::run() {
 
     calendar_date += days{1};
   }
-  LOG(INFO) << "Simulation is done";
+  std::cout << "Simulation is done"<< std::endl;
   Model::MODEL->model_finished = true;
   return;
 }

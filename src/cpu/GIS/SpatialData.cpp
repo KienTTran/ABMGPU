@@ -9,7 +9,6 @@
 #include <fmt/format.h>
 #include <stdexcept>
 #include "../Core/Config/Config.h"
-//#include "easylogging++.h"
 #include "../Model.h"
 
 SpatialData::SpatialData() {
@@ -74,7 +73,7 @@ void SpatialData::generate_distances() const {
                 std::pow(cell_size * (db[from].coordinate->longitude - db[to].coordinate->longitude), 2));
         }
     }
-    VLOG(1) << "Updated Euclidean distances using raster data";
+    std::cout << "Updated Euclidean distances using raster data"<< std::endl;
 }
 
 void SpatialData::generate_locations() {
@@ -91,7 +90,7 @@ void SpatialData::generate_locations() {
 
     // If we didn't find one, return
     if (ndx == SpatialFileType::Count) {
-        LOG(ERROR) << "No spatial file found to generate locations with!";
+        std::cout << "No spatial file found to generate locations with!"<< std::endl;
         return; 
     }
 
@@ -119,9 +118,9 @@ void SpatialData::generate_locations() {
     Model::CONFIG->number_of_locations.set_value();
     if (Model::CONFIG->number_of_locations() == 0) {
         // This error should be redundant since the ASC loader should catch it
-        LOG(ERROR) << "Zero locations loaded while parsing ASC file.";
+        std::cout << "Zero locations loaded while parsing ASC file."<< std::endl;
     }
-    VLOG(1) << "Generated " << Model::CONFIG->number_of_locations() << " locations";
+    std::cout << "Generated " << Model::CONFIG->number_of_locations() << " locations"<< std::endl;
 }
 
 int SpatialData::get_district(int location) {
@@ -166,7 +165,7 @@ int SpatialData::get_district_count() {
 
     // Verify that the first index is zero or one
     if (!(first == 0 || first == 1)) {
-      LOG(ERROR) << "Index of first district must be zero or one, found " << first;
+      std::cout << "Index of first district must be zero or one, found " << first<< std::endl;
       throw std::invalid_argument("District raster must be zero or one indexed.");
     }
     first_district = first;
@@ -240,7 +239,7 @@ void SpatialData::load(const std::string& filename, SpatialFileType type) {
     if (data[type] != nullptr) { delete data[type]; }
 
     // Load the data and set the reference
-//    VLOG(1) << "Loading " << filename;
+//    std::cout << "Loading " << filename;
     printf("Loading %s\n", filename.c_str());
     AscFile* file = AscFileManager::read(filename);
     data[type] = file;
@@ -283,7 +282,7 @@ void SpatialData::load_raster(SpatialFileType type) {
                 case SpatialFileType::Population: {
                     // Verify that we aren't losing data
                     if (values->data[row][col] != ceil((double) values->data[row][col])) {
-//                        LOG(WARNING) << fmt::format("Population data lost at row {}, col {}, value {}", row, col, values->data[row][col]);
+//                        std::cout << fmt::format("Population data lost at row {}, col {}, value {}", row, col, values->data[row][col]);
                         printf("Population data lost at row %d, col %d, value %f\n", row, col, values->data[row][col]);
                     }
                     location_db[id].population_size = static_cast<int>(values->data[row][col]) * Model::CONFIG->gpu_config().population_scale;
@@ -315,7 +314,7 @@ void SpatialData::load_raster(SpatialFileType type) {
     }
 
     // Log the updates
-//    VLOG(1) << "Loaded values from raster file, type id: " << type;
+//    std::cout << "Loaded values from raster file, type id: " << type;
     printf("Loaded values from raster file, type id: %d\n", type);
 }
 

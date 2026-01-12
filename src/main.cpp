@@ -1,33 +1,8 @@
 #define NOMINMAX
-#include "easylogging++.h"
 #include <args.hxx>
 #include "cpu/Model.h"
 #include "cpu/version.h"
 #include "cpu/Helpers/OSHelpers.h"
-
-INITIALIZE_EASYLOGGINGPP
-
-void config_logger() {
-    const std::string OUTPUT_FORMAT = "[%level] [%func] [%loc] %msg";
-
-    // Set global logging flags
-    el::Loggers::addFlag(el::LoggingFlag::DisableApplicationAbortOnFatalLog);
-
-    // Create the default configuration
-    el::Configurations default_conf;
-    default_conf.setToDefault();
-    default_conf.set(el::Level::Debug, el::ConfigurationType::Format, OUTPUT_FORMAT);
-    default_conf.set(el::Level::Error, el::ConfigurationType::Format, OUTPUT_FORMAT);
-    default_conf.set(el::Level::Fatal, el::ConfigurationType::Format, OUTPUT_FORMAT);
-    default_conf.set(el::Level::Trace, el::ConfigurationType::Format, OUTPUT_FORMAT);
-    default_conf.set(el::Level::Info, el::ConfigurationType::Format, "[%level] %msg");
-    default_conf.set(el::Level::Warning, el::ConfigurationType::Format, "[%level] %msg");
-    default_conf.set(el::Level::Verbose, el::ConfigurationType::Format, "[%level-%vlevel] %msg");
-    default_conf.setGlobally(el::ConfigurationType::ToFile, "false");
-    default_conf.setGlobally(el::ConfigurationType::ToStandardOutput, "true");
-    default_conf.setGlobally(el::ConfigurationType::LogFlushThreshold, "100");
-    el::Loggers::reconfigureLogger("default", default_conf);
-}
 
 int job_number = 0;
 std::string path(".");
@@ -74,7 +49,7 @@ void handle_cli(Model *model, int argc, char **argv) {
 
         // Check to see if we are listing reporters, do that and exit
         if (list_reporters) {
-            std::cout << "Possible reporters for use with -r switch:\n\n";
+            std::cout << "Possible reporters for use with -r switch:\n\n"<< std::endl;
             for (auto const& report : Reporter::ReportTypeMap) {
                 std::cout << '\t' << report.first << std::endl;
             }
@@ -90,28 +65,26 @@ void handle_cli(Model *model, int argc, char **argv) {
     }
     catch (const args::Help &e) {
         std::cout << "MaSim v. " << VERSION << std::endl;
-        std::cout << e.what() << parser;
+        std::cout << e.what() << parser<< std::endl;
         exit(EXIT_SUCCESS);
     }
     catch (const args::ParseError &e) {
-//        LOG(ERROR) << fmt::format("{0} {1}", e.what(), parser);
-        LOG(ERROR) << e.what() << " " << parser;
+        std::cout << e.what() << " " << parser<< std::endl;
         exit(EXIT_FAILURE);
     }
     catch (const args::ValidationError &e) {
-//        LOG(ERROR) << fmt::format("{0} {1}", e.what(), parser);
-        LOG(ERROR) << e.what() << " " << parser;
+        std::cout  << e.what() << " " << parser;
         exit(EXIT_FAILURE);
     }
 
     // Verify that the input file seems okay, exit if it isn't
     const auto input = input_file ? args::get(input_file) : "input.yml";
     if (!OsHelpers::file_exists(input)) {
-        LOG(ERROR) << fmt::format("File {0} does not exists. Rerun with -h or --help for help.", input);
+        std::cout  << fmt::format("File {0} does not exists. Rerun with -h or --help for help.", input);
         exit(EXIT_FAILURE);
     }
     if (input.find(".yml") == std::string::npos && input.find(".yaml") == std::string::npos) {
-        LOG(ERROR) << fmt::format("File {0} does not appear to be a YAML file", input);
+        std::cout  << fmt::format("File {0} does not appear to be a YAML file", input);
         exit(EXIT_FAILURE);
     }
     model->set_config_filename(input);
@@ -159,9 +132,6 @@ void handle_cli(Model *model, int argc, char **argv) {
 }
 
 int main(int argc, char* argv[]) {
-    config_logger();
-    START_EASYLOGGINGPP(argc, argv);
-
     Model *model = new Model();
     handle_cli(model, argc, argv);
     model->init(job_number, path);

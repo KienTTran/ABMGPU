@@ -15,7 +15,6 @@
 #include "../Model.h"
 #include "SpatialModel.hxx"
 
-#include "easylogging++.h"
 #include "yaml-cpp/yaml.h"
 
 namespace Spatial {

@@ -54,7 +54,7 @@ void Model::add_reporter(Reporter* reporter) {
 void Model::init(int job_number, const std::string& std) {
     config_->readConfigFile(config_filename_);
 
-    LOG(INFO) << "Initialize Random";
+    std::cout << "Initialize Random" << std::endl<< std::endl;
     // Initialize Random Seed
     initial_seed_number_ = Model::CONFIG->initial_seed_number() == 0 ? initial_seed_number_ : Model::CONFIG->initial_seed_number();
     random_->initialize(initial_seed_number_);
@@ -65,7 +65,7 @@ void Model::init(int job_number, const std::string& std) {
     renderer_->init(render_entity_);
 
     // MARKER add reporter here
-    VLOG(1) << "Initialing reporter(s)...";
+    std::cout << "Initialing reporter(s)..."<< std::endl;
     try {
         if (reporter_type_.empty()) {
             add_reporter(Reporter::MakeReport(Reporter::MONTHLY_REPORTER));
@@ -83,25 +83,25 @@ void Model::init(int job_number, const std::string& std) {
             reporter->initialize(job_number, std);
         }
     } catch (std::invalid_argument &ex) {
-        LOG(ERROR) << "Initialing reporter generated exception: " << ex.what();
+        std::cout << "Initialing reporter generated exception: " << ex.what()<< std::endl;
         exit(EXIT_FAILURE);
     } catch (std::runtime_error &ex) {
-        LOG(ERROR) << "Runtime error encountered while initializing reporter: " << ex.what();
+        std::cout << "Runtime error encountered while initializing reporter: " << ex.what()<< std::endl;
         exit(EXIT_FAILURE);
     }
 
-    VLOG(1) << "Initializing scheduler...";
-    LOG(INFO) << "Starting day is " << CONFIG->starting_date();
+    std::cout << "Initializing scheduler..."<< std::endl;
+    std::cout << "Starting day is " << CONFIG->starting_date()<< std::endl;
     scheduler_->initialize(CONFIG->starting_date(), config_->total_time());
     scheduler_->set_days_between_notifications(config_->days_between_notifications());
 }
 
 void Model::run() {
-    LOG(INFO) << "Model starting...";
+    std::cout << "Model starting..."<< std::endl;
     before_run();
 
     auto start = std::chrono::system_clock::now();
-    LOG(INFO) << "Start running model";
+    std::cout << "Start running model"<< std::endl;
     if(Model::CONFIG->render_config().display_gui){
         std::thread scheduler_thread(&Scheduler::run, scheduler_);
         renderer_->start();
@@ -113,11 +113,11 @@ void Model::run() {
     auto end = std::chrono::system_clock::now();
 
     after_run();
-    LOG(INFO) << "Model finished!";
+    std::cout << "Model finished!"<< std::endl;
 
     // Note the final run-time of the model
     std::chrono::duration<double> elapsed_seconds = end-start;
-    LOG(INFO) << fmt::format("Elapsed time (s): {0}", elapsed_seconds.count());
+    std::cout << fmt::format("Elapsed time (s): {0}", elapsed_seconds.count());
 }
 
 void Model::monthly_report() {
@@ -136,18 +136,18 @@ void Model::report_begin_of_time_step() {
 }
 
 void Model::before_run() {
-    LOG(INFO) << scheduler_->current_time() << " " << std::chrono::system_clock::to_time_t(Model::SCHEDULER->calendar_date) <<
+    std::cout << scheduler_->current_time() << " " << std::chrono::system_clock::to_time_t(Model::SCHEDULER->calendar_date) <<
               " " << date::format("%Y\t%m\t%d", Model::SCHEDULER->calendar_date) <<
-              " " << " before_run";
+              " " << " before_run"<< std::endl;
     for (auto* reporter : reporters_) {
         reporter->before_run();
     }
 }
 
 void Model::after_run() {
-    LOG(INFO) << scheduler_->current_time() << " " << std::chrono::system_clock::to_time_t(Model::SCHEDULER->calendar_date) <<
+    std::cout << scheduler_->current_time() << " " << std::chrono::system_clock::to_time_t(Model::SCHEDULER->calendar_date) <<
               " " << date::format("%Y\t%m\t%d", Model::SCHEDULER->calendar_date) <<
-              " " << " after_run";
+              " " << " after_run"<< std::endl;
 
     data_collector_->update_after_run();
 
@@ -157,16 +157,16 @@ void Model::after_run() {
 }
 
 void Model::begin_time_step() {
-    LOG(INFO) << scheduler_->current_time() <<
+    std::cout << scheduler_->current_time() <<
               " " << date::format("%Y\t%m\t%d", Model::SCHEDULER->calendar_date) <<
-              " " << " begin_time_step";
+              " " << " begin_time_step"<< std::endl;
     //reset daily variables
     data_collector_->begin_time_step();
     report_begin_of_time_step();
 }
 
 void Model::perform_population_events_daily() const {
-    LOG(INFO) << scheduler_->current_time() <<
+    std::cout << scheduler_->current_time() <<
               " " << date::format("%Y\t%m\t%d", Model::SCHEDULER->calendar_date) <<
               " " << " perform_population_events_daily";
 //    // TODO: turn on and off time for art mutation in the input file
@@ -176,9 +176,9 @@ void Model::perform_population_events_daily() const {
 }
 
 void Model::daily_update(const int &current_time) {
-    LOG(INFO) << scheduler_->current_time() << " " << std::chrono::system_clock::to_time_t(Model::SCHEDULER->calendar_date) <<
+    std::cout << scheduler_->current_time() << " " << std::chrono::system_clock::to_time_t(Model::SCHEDULER->calendar_date) <<
     " " << date::format("%Y\t%m\t%d", Model::SCHEDULER->calendar_date) <<
-    " " << " Perform daily update";
+    " " << " Perform daily update"<< std::endl;
 //    //for safety remove all dead by calling perform_death_event
     population_->performDeathEvent();
 
@@ -196,9 +196,9 @@ void Model::daily_update(const int &current_time) {
 }
 
 void Model::monthly_update() {
-    LOG(INFO) << scheduler_->current_time() << " " << std::chrono::system_clock::to_time_t(Model::SCHEDULER->calendar_date) <<
+    std::cout << scheduler_->current_time() << " " << std::chrono::system_clock::to_time_t(Model::SCHEDULER->calendar_date) <<
               " " << date::format("%Y\t%m\t%d", Model::SCHEDULER->calendar_date) <<
-              " " << " Perform monthly_update update";
+              " " << " Perform monthly_update update"<< std::endl;
     monthly_report();
 //
 //    //reset monthly variables
@@ -214,8 +214,8 @@ void Model::monthly_update() {
 
 // ReSharper disable once CppMemberFunctionMayBeConst
 void Model::yearly_update() {
-    LOG(INFO) << scheduler_->current_time() << " " << std::chrono::system_clock::to_time_t(Model::SCHEDULER->calendar_date) <<
+    std::cout << scheduler_->current_time() << " " << std::chrono::system_clock::to_time_t(Model::SCHEDULER->calendar_date) <<
               " " << date::format("%Y\t%m\t%d", Model::SCHEDULER->calendar_date) <<
-              " " << " Perform yearly_update update";
+              " " << " Perform yearly_update update"<< std::endl;
     data_collector_->perform_yearly_update();
 }

@@ -1,4 +1,0 @@
-ToolSet: 1.0 (local)Ninja: 1.12.0@/snap/clion/296/bin/ninja/linux/x64/ninja
-Options: 
-
-Options:-DCMAKE_TOOLCHAIN_FILE=/home/ktt/SDK/vcpkg/scripts/buildsystems/vcpkg.cmake

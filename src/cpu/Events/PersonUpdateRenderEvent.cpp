@@ -8,7 +8,6 @@
 #include "../Core/Scheduler.h"
 #include "../Model.h"
 #include "../Population/Population.cuh"
-#include <easylogging++.h>
 
 PersonUpdateRenderEvent::PersonUpdateRenderEvent() = default;
 
@@ -30,6 +29,6 @@ std::string PersonUpdateRenderEvent::name() {
 
 void PersonUpdateRenderEvent::execute() {
     //Update population here
-    LOG(INFO) << "Person Update Render Event executed at time: " << time;
+    std::cout << "Person Update Render Event executed at time: " << time<< std::endl;
     Model::POPULATION->updateRender();
 }

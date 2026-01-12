@@ -13,7 +13,6 @@
 #include <fmt/format.h>
 #include "Random.h"
 #include "../Helpers/NumberHelpers.h"
-#include "easylogging++.h"
 
 Random::Random(gsl_rng* g_rng) : seed_(0ul), G_RNG(g_rng) {}
 
@@ -29,7 +28,7 @@ void Random::initialize(const unsigned long &seed) {
   auto milliseconds = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch());
   seed_ = seed == 0 ? static_cast<unsigned long>(milliseconds.count()) : seed;
 
-  LOG(INFO) << fmt::format("Random initializing with seed: {}", seed_);
+  std::cout << fmt::format("Random initializing with seed: {}", seed_)<< std::endl;
   gsl_rng_set(G_RNG, seed_);
 
 }

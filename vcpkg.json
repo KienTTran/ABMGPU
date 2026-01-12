@@ -1,0 +1,24 @@
+{
+  "name": "abmgpu",
+  "version-string": "0.1.0",
+  "builtin-baseline": "fafcc0e93bfba303e5e48790def745d27e6d449b",
+  "dependencies": [
+    "glfw3",
+    "opengl",
+    "glew",
+    "glm",
+    {
+      "name": "imgui",
+      "features": [
+        "glfw-binding",
+        "opengl3-binding"
+      ]
+    },
+    "fmt",
+    "date",
+    "gsl",
+    "args",
+    "spdlog",
+    "yaml-cpp"
+  ]
+}

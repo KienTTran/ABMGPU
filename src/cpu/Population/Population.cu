@@ -189,7 +189,7 @@ void Population::initPop(){
 
 void Population::performBirthEvent() {
     if (Model::CONFIG->debug_config().enable_debug_text) {
-        VLOG(1) << "[Population] Perform birth event";
+        std::cout << "[Population] Perform birth event"<< std::endl;
     }
     int birth_sum = 0;
     auto tp_start = std::chrono::high_resolution_clock::now();
@@ -240,13 +240,13 @@ void Population::performBirthEvent() {
 
     auto lapse = std::chrono::high_resolution_clock::now() - tp_start;
     if(Model::CONFIG->debug_config().enable_debug_text){
-        VLOG(1) << "[Population] Update population birth (" << birth_sum<< ") event time: " << std::chrono::duration_cast<std::chrono::milliseconds>(lapse).count() << " ms";
+        std::cout << "[Population] Update population birth (" << birth_sum<< ") event time: " << std::chrono::duration_cast<std::chrono::milliseconds>(lapse).count() << " ms"<< std::endl;
     }
 }
 
 void Population::performDeathEvent() {
     if (Model::CONFIG->debug_config().enable_debug_text) {
-        VLOG(1) << "[Population] Perform death event";
+        std::cout << "[Population] Perform death event"<< std::endl;
     }
     int dead_sum = 0;
     auto tp_start = std::chrono::high_resolution_clock::now();
@@ -264,7 +264,7 @@ void Population::performDeathEvent() {
                 assert(Model::CONFIG->death_rate_by_age_class().size() == Model::CONFIG->number_of_age_classes());
                 const auto number_of_deaths = Model::RANDOM->random_poisson(poisson_means);
 //                const auto number_of_deaths = floor(size*Model::CONFIG->death_rate_by_age_class()[ac]);
-//                VLOG(1) << fmt::format("[Population] Location {} state {} ac {} number of deaths: {}", loc, hs, ac, number_of_deaths);
+//                std::cout << fmt::format("[Population] Location {} state {} ac {} number of deaths: {}", loc, hs, ac, number_of_deaths);
                 if (number_of_deaths == 0) continue;
                 for (int i = 0; i < number_of_deaths; i++) {
                     // change state to Death;
@@ -283,7 +283,7 @@ void Population::performDeathEvent() {
 
     auto lapse = std::chrono::high_resolution_clock::now() - tp_start;
     if(Model::CONFIG->debug_config().enable_debug_text){
-        VLOG(1) << "[Population] Update population death (" << dead_sum << ") event time: " << std::chrono::duration_cast<std::chrono::milliseconds>(lapse).count() << " ms";
+        std::cout << "[Population] Update population death (" << dead_sum << ") event time: " << std::chrono::duration_cast<std::chrono::milliseconds>(lapse).count() << " ms"<< std::endl;
     }
 }
 

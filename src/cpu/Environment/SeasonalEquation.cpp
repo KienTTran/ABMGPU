@@ -39,7 +39,7 @@ SeasonalEquation* SeasonalEquation::build(const YAML::Node &node, Config* config
 
   // Warn the user if enough nodes were not provided
   if (settings["a"].size() > 1 && settings["a"].size() < config->number_of_locations()) {
-    LOG(WARNING) << fmt::format("Only {} seasonal  equation settings provided, but {} are needed for all locations", settings["a"].size(), config->number_of_locations());
+    std::cout << fmt::format("Only {} seasonal  equation settings provided, but {} are needed for all locations", settings["a"].size(), config->number_of_locations());
   }
 
   // Set the values from the array and return
@@ -74,7 +74,7 @@ void SeasonalEquation::set_from_raster(const YAML::Node &node) {
   }
 
   // Prepare to run
-  LOG(INFO) << "Setting seasonal equation using raster data.";
+  std::cout << "Setting seasonal equation using raster data."<< std::endl;
 
   // Load the values based upon the raster data
   auto size = node["a"].size();

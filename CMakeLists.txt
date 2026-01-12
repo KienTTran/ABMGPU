@@ -4,13 +4,12 @@ else()
     cmake_minimum_required(VERSION 3.22)
 endif()
 
-if(WIN32)
-    set(CMAKE_CUDA_COMPILER "D:/SDK/CUDA/12.2.1/Toolkit/bin/nvcc.exe")
-    set(CMAKE_TOOLCHAIN_FILE "D:/SDK/vcpkg/scripts/buildsystems/vcpkg.cmake")
-else()
-    set(CMAKE_CUDA_COMPILER "/usr/local/cuda/bin/nvcc")
-    set(CMAKE_TOOLCHAIN_FILE "/home/ktt/SDK/vcpkg/scripts/buildsystems/vcpkg.cmake")
+if(CMAKE_TOOLCHAIN_FILE MATCHES "vcpkg")
+    message(STATUS "Using vcpkg toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
+else ()
+    set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 endif()
+set(CMAKE_CUDA_COMPILER "/usr/local/cuda/bin/nvcc")
 
 #vcpkg install glfw3 opengl glew glm imgui[core,glfw-binding,opengl3-binding] easyloggingpp date yaml-cpp
 
@@ -21,7 +20,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 #add_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
 set(EXT_PROJECTS_DIR ${PROJECT_SOURCE_DIR}/ext)
-include_directories(${EXT_PROJECTS_DIR}/easyloggingpp.9.96.4)
+#include_directories(${EXT_PROJECTS_DIR}/easyloggingpp.9.96.4)
 
 add_executable(${PROJECT_NAME}
         src/cpu/Core/Config/CustomConfigItem.h
@@ -66,8 +65,8 @@ add_executable(${PROJECT_NAME}
         src/cpu/GIS/SpatialData.h
         src/cpu/GIS/SpatialData.cpp
         src/cpu/GIS/AscFile.cpp
-        ${EXT_PROJECTS_DIR}/easyloggingpp.9.96.4/easylogging++.h
-        ${EXT_PROJECTS_DIR}/easyloggingpp.9.96.4/easylogging++.cc
+#        ${EXT_PROJECTS_DIR}/easyloggingpp.9.96.4/easylogging++.h
+#        ${EXT_PROJECTS_DIR}/easyloggingpp.9.96.4/easylogging++.cc
         src/cpu/Environment/SeasonalEquation.cpp
         src/cpu/Environment/SeasonalRainfall.cpp
         src/cpu/Environment/SeasonalInfo.h
@@ -116,7 +115,7 @@ set_target_properties(
         ${PROJECT_NAME}
         PROPERTIES
         CUDA_SEPARABLE_COMPILATION ON)
-set_target_properties(${PROJECT_NAME} PROPERTIES CUDA_ARCHITECTURES "61")
+set_target_properties(${PROJECT_NAME} PROPERTIES CUDA_ARCHITECTURES "86")
 
 #Easyloggingpp easyloggingpp
 #target_link_libraries(${PROJECT_NAME} PRIVATE easyloggingpp)
@@ -144,7 +143,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE date::date date::date-tz)
 
 #Yaml yaml-cpp
 find_package(yaml-cpp CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE yaml-cpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE yaml-cpp::yaml-cpp)
 
 #fmt fmt
 find_package(fmt CONFIG REQUIRED)
@@ -158,31 +157,31 @@ target_link_libraries(${PROJECT_NAME} PRIVATE GSL::gsl GSL::gslcblas)
 find_package(args CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE taywee::args)
 
-if(WIN32)
-    target_include_directories(${PROJECT_NAME} PUBLIC "D:/SDK/vcpkg/installed/x64-windows/include")
-    target_link_directories(${PROJECT_NAME} PUBLIC "D:/SDK/vcpkg/installed/x64-windows/lib")
-    #CUDA - NVIDIA
-    target_include_directories(${PROJECT_NAME} PUBLIC "D:/SDK/CUDA/12.2.1/Toolkit/include")
-    target_link_directories(${PROJECT_NAME} PUBLIC "D:/SDK/CUDA/12.2.1/Toolkit/lib/x64")
-    target_link_libraries(${PROJECT_NAME} PRIVATE cuda)
+#spdlog
+find_package(spdlog REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog_header_only)
 
-    #OpenGL opengl
-    find_package(OpenGL REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PRIVATE opengl32)
 
-else()
-    target_include_directories(${PROJECT_NAME} PUBLIC "/home/ktt/SDK/vcpkg/installed/x64-linux/include")
-    target_link_directories(${PROJECT_NAME} PUBLIC "/home/ktt/SDK/vcpkg/installed/x64-linux/lib")
+if(CMAKE_TOOLCHAIN_FILE MATCHES "vcpkg")
+    message(STATUS "Using vcpkg toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
     set(CMAKE_CUDA_COMPILER "/usr/local/cuda/bin/nvcc")
     include_directories("/usr/local/cuda/include")
     include_directories("/usr/local/include")
+    include_directories("/usr/local/cuda/include/cccl")
     include_directories("/usr/include")
-
-    #OpenGL opengl
-    find_package(OpenGL REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
-
+else ()
+    target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/installed/x64-linux/include")
+    target_link_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/installed/x64-linux/lib")
+    set(CMAKE_CUDA_COMPILER "/usr/local/cuda/bin/nvcc")
+    include_directories("/usr/local/cuda/include")
+    include_directories("/usr/local/cuda/include/cccl")
+    include_directories("/usr/local/include")
+    include_directories("/usr/include")
 endif()
+
+#OpenGL opengl
+find_package(OpenGL REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
 
 # Extra libs, just in case
 ##FreeGLUT freeglut

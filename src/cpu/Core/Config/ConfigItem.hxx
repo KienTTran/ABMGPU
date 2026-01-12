@@ -7,7 +7,6 @@
 #include <utility>
 #include <vector>
 #include <fmt/format.h>
-#include <easylogging++.h>
 
 #define CONFIG_ITEM(name, type, default_value)\
   ConfigItem<type> name{#name,default_value, this};
@@ -63,7 +62,7 @@ void ConfigItem<T>::set_value(const YAML::Node &node) {
     } else {
       std::stringstream ss;
       ss << this->value_;
-      LOG(WARNING) << name_ << " used default value of " << value_;
+      std::cout << name_ << " used default value of " << value_<< std::endl;
     }
   }
 }
@@ -134,8 +133,8 @@ void ConfigItem<std::vector<T>>::set_value(const YAML::Node &node) {
       sep = " , ";
     }
     ss << "]";
-    VLOG(1) << fmt::format("{} used default value of {}", this->name_, ss.str());
-    LOG(INFO) << fmt::format("{} used default value of {}", this->name_, ss.str());
+    std::cout << fmt::format("{} used default value of {}", this->name_, ss.str());
+    std::cout << fmt::format("{} used default value of {}", this->name_, ss.str());
   }
 }
 
