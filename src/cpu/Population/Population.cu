@@ -16,10 +16,11 @@ Population::~Population(){
 
 
 __global__ void update_person_position(int work_from, int work_to, int work_batch, float width, float height,
-                                       glm::mat4 *buffer_person_models, glm::vec4 *buffer_person_colors,
+                                       glm::mat4 *buffer_person_models, glm::vec4 *buffer_person_colors,int rng_n,
                                        curandState *state){
     int thread_index = blockIdx.x * blockDim.x + threadIdx.x;
     int stride = blockDim.x * gridDim.x;
+    if (thread_index >= rng_n) return;  // critical
     curandState local_state = state[thread_index];
     for (int index = thread_index; index < work_batch; index += stride) {
         if(curand_uniform(&local_state) > 0.9f) {
@@ -313,6 +314,7 @@ void Population::update(){
             update_person_position<<<((batch_size + n_threads - 1)/n_threads), n_threads>>>(batch_from,batch_to,batch_size,width,height,
                                                                                             thrust::raw_pointer_cast(buffer_person_models_.data()),
                                                                                             thrust::raw_pointer_cast(buffer_person_colors_.data()),
+                                                                                            GPURandom::getInstance().rng_n,
                                                                                             GPURandom::getInstance().d_states);
             checkCudaErr(cudaDeviceSynchronize());
             checkCudaErr(cudaGetLastError());

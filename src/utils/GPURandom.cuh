@@ -12,6 +12,7 @@ public:
     curandState *d_states;
     int n_threads;
     int n_blocks;
+    int rng_n;
 public:
     GPURandom();
     ~GPURandom();

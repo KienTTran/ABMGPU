@@ -168,7 +168,7 @@ void Model::begin_time_step() {
 void Model::perform_population_events_daily() const {
     std::cout << scheduler_->current_time() <<
               " " << date::format("%Y\t%m\t%d", Model::SCHEDULER->calendar_date) <<
-              " " << " perform_population_events_daily";
+              " " << " perform_population_events_daily" << std::endl;
 //    // TODO: turn on and off time for art mutation in the input file
 //    population_->perform_infection_event();
     population_->performBirthEvent();

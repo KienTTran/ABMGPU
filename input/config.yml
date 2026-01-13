@@ -2,12 +2,12 @@ gpu_config:
   n_threads: 1024
   people_1_batch: 102400000
   pre_allocated_mem_ratio: 1.5
-  population_scale: 0.25
+  population_scale: 1.0
 
 render_config:
   window_width: 1280
   window_height: 720
-  display_gui: false
+  display_gui: true
   close_window_on_finish: true
   point_coord: 0.05
 
@@ -17,13 +17,13 @@ debug_config:
   enable_update: true
   enable_debug_text: true
   enable_debug_render: false
-  enable_debug_render_text: false
+  enable_debug_render_text: true
 
 #0 to randomize seed
 initial_seed_number: 123456789
 
 starting_date: 2000/01/01
-ending_date: 8000/01/01
+ending_date: 2010/01/01
 
 report_frequency: 30
 
