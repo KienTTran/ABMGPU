@@ -186,6 +186,13 @@ void Population::initPop(){
     printf("[Population] Init population (%d %d) time: %d ms\n", sum0, Model::CONFIG->n_people_init(),
            std::chrono::duration_cast<std::chrono::milliseconds>(lapse).count());
     printf("\n");
+
+    // Copy initial models and colors to persistent device vectors
+    auto *pi = getPersonIndex<PersonIndexGPU>();
+    d_person_models_.resize(pi->h_person_models().size());
+    d_person_colors_.resize(pi->h_person_colors().size());
+    thrust::copy(pi->h_person_models().begin(), pi->h_person_models().end(), d_person_models_.begin());
+    thrust::copy(pi->h_person_colors().begin(), pi->h_person_colors().end(), d_person_colors_.begin());
 }
 
 void Population::performBirthEvent() {
@@ -243,6 +250,15 @@ void Population::performBirthEvent() {
     if(Model::CONFIG->debug_config().enable_debug_text){
         std::cout << "[Population] Update population birth (" << birth_sum<< ") event time: " << std::chrono::duration_cast<std::chrono::milliseconds>(lapse).count() << " ms"<< std::endl;
     }
+
+    // Sync device vectors after births
+    if (birth_sum > 0) {
+        auto *pi = getPersonIndex<PersonIndexGPU>();
+        d_person_models_.resize(pi->h_person_models().size());
+        d_person_colors_.resize(pi->h_person_colors().size());
+        thrust::copy(pi->h_person_models().begin(), pi->h_person_models().end(), d_person_models_.begin());
+        thrust::copy(pi->h_person_colors().begin(), pi->h_person_colors().end(), d_person_colors_.begin());
+    }
 }
 
 void Population::performDeathEvent() {
@@ -286,51 +302,48 @@ void Population::performDeathEvent() {
     if(Model::CONFIG->debug_config().enable_debug_text){
         std::cout << "[Population] Update population death (" << dead_sum << ") event time: " << std::chrono::duration_cast<std::chrono::milliseconds>(lapse).count() << " ms"<< std::endl;
     }
+
+    // Sync device vectors after deaths
+    if (dead_sum > 0) {
+        auto *pi = getPersonIndex<PersonIndexGPU>();
+        d_person_models_.resize(pi->h_person_models().size());
+        d_person_colors_.resize(pi->h_person_colors().size());
+        thrust::copy(pi->h_person_models().begin(), pi->h_person_models().end(), d_person_models_.begin());
+        thrust::copy(pi->h_person_colors().begin(), pi->h_person_colors().end(), d_person_colors_.begin());
+    }
 }
 
 void Population::update(){
     if(Model::CONFIG->debug_config().enable_update){
+        if(Model::CONFIG->debug_config().enable_debug_text){
+            std::cout << "[Population] Perform movement event" << std::endl;
+        }
         auto tp_start = std::chrono::high_resolution_clock::now();
 
         float width = Model::CONFIG->debug_config().width > 0 ? Model::CONFIG->debug_config().width : Model::CONFIG->render_config().window_width;
         float height = Model::CONFIG->debug_config().height > 0 ? Model::CONFIG->debug_config().height : Model::CONFIG->render_config().window_height;
         int n_threads = Model::CONFIG->gpu_config().n_threads;
         auto *pi = getPersonIndex<PersonIndexGPU>();
-        int batch_size = (pi->h_persons().size() < Model::CONFIG->gpu_config().people_1_batch)
-                         ? pi->h_persons().size() : Model::CONFIG->gpu_config().people_1_batch;
+        int population_size = pi->h_persons().size();
+        int batch_size = population_size;
+        int batch_from = 0;
+        int batch_to = batch_size;
         //This is to make sure threads fit all people in population
         n_threads = (batch_size < n_threads) ? batch_size : n_threads;
-        for (int remain = pi->h_persons().size(); remain > 0; remain -= batch_size) {
-            batch_size = (remain < batch_size) ? remain : batch_size;
-            int batch_from = pi->h_persons().size() - remain;
-            int batch_to = batch_from + batch_size;
-//            printf("[Population update] Work batch size %d remain %d, from %d to %d (of %d %d)\n", batch_size, remain, batch_from, batch_to,
-//                   pi->h_person_models().size(),pi->h_person_colors().size());
-            buffer_person_models_.resize(batch_size);
-            buffer_person_colors_.resize(batch_size);
-            /* H2D */
-            thrust::copy(pi->h_person_models().begin() + batch_from, pi->h_person_models().begin() + batch_to,buffer_person_models_.begin());
-            thrust::copy(pi->h_person_colors().begin() + batch_from, pi->h_person_colors().begin() + batch_to,buffer_person_colors_.begin());
-            update_person_position<<<((batch_size + n_threads - 1)/n_threads), n_threads>>>(batch_from,batch_to,batch_size,width,height,
-                                                                                            thrust::raw_pointer_cast(buffer_person_models_.data()),
-                                                                                            thrust::raw_pointer_cast(buffer_person_colors_.data()),
-                                                                                            GPURandom::getInstance().rng_n,
-                                                                                            GPURandom::getInstance().d_states);
-            checkCudaErr(cudaDeviceSynchronize());
-            checkCudaErr(cudaGetLastError());
-            /* D2H */
-            thrust::copy(buffer_person_models_.begin(), buffer_person_models_.end(), pi->h_person_models().begin() + batch_from);
-            thrust::copy(buffer_person_colors_.begin(), buffer_person_colors_.end(), pi->h_person_colors().begin() + batch_from);
-            checkCudaErr(cudaGetLastError());
-        }
-        buffer_person_models_.clear();
-        buffer_person_colors_.clear();
-        thrust::device_vector<glm::mat4>().swap(buffer_person_models_);
-        thrust::device_vector<glm::vec4>().swap(buffer_person_colors_);
+
+        // Run kernel directly on persistent device vectors
+        update_person_position<<<((batch_size + n_threads - 1)/n_threads), n_threads>>>(batch_from, batch_to, batch_size, width, height,
+                                                                                        thrust::raw_pointer_cast(d_person_models_.data()),
+                                                                                        thrust::raw_pointer_cast(d_person_colors_.data()),
+                                                                                        GPURandom::getInstance().rng_n,
+                                                                                        GPURandom::getInstance().d_states);
+        checkCudaErr(cudaDeviceSynchronize());
+        checkCudaErr(cudaGetLastError());
 
         auto lapse = std::chrono::high_resolution_clock::now() - tp_start;
         if(Model::CONFIG->debug_config().enable_debug_text){
-            printf("[Population] Update population movement time: %d ms\n",std::chrono::duration_cast<std::chrono::milliseconds>(lapse).count());
+            std::cout << "[Population] Population size: " << pi->h_persons().size() << std::endl;
+            std::cout << "[Population] Update population movement time: " << std::chrono::duration_cast<std::chrono::milliseconds>(lapse).count() << " ms" << std::endl;
         }
     }
 }
@@ -340,39 +353,25 @@ void Population::updateRender(){
 
     auto *pi = getPersonIndex<PersonIndexGPU>();
     int n_threads = Model::CONFIG->gpu_config().n_threads;
-    int batch_size = (pi->h_person_models().size() < Model::CONFIG->gpu_config().people_1_batch)
-                     ? pi->h_person_models().size() : Model::CONFIG->gpu_config().people_1_batch;
+    int population_size = pi->h_person_models().size();
+    int batch_size = population_size;
+    int batch_from = 0;
+    int batch_to = batch_size;
     //This is to make sure threads fit all people in population
     n_threads = (batch_size < n_threads) ? batch_size : n_threads;
-    for (int remain = pi->h_person_models().size(); remain > 0; remain -= batch_size) {
-        batch_size = (remain < batch_size) ? remain : batch_size;
-        int batch_from = pi->h_person_models().size() - remain;
-        int batch_to = batch_from + batch_size;
-        //        printf("[GPUBUffer update render] Work batch size %d remain %d, from %d to %d\n", batch_size, remain, batch_from, batch_to);
-        buffer_person_models_.resize(batch_size);
-        buffer_person_colors_.resize(batch_size);
-        /* H2D */
-        thrust::copy(pi->h_person_models().begin() + batch_from, pi->h_person_models().begin() + batch_to,buffer_person_models_.begin());
-        thrust::copy(pi->h_person_colors().begin() + batch_from, pi->h_person_colors().begin() + batch_to,buffer_person_colors_.begin());
-        //Update OGL buffer, this must be in final step
-        update_ogl_buffer<<<((batch_size + n_threads - 1)/n_threads), n_threads>>>(batch_from,batch_to,batch_size,
-                                                                                   thrust::raw_pointer_cast(buffer_person_models_.data()),
-                                                                                   thrust::raw_pointer_cast(buffer_person_colors_.data()),
-                                                                                   Model::RENDER_ENTITY->d_ogl_buffer_model_ptr,
-                                                                                   Model::RENDER_ENTITY->d_ogl_buffer_color_ptr);
-        checkCudaErr(cudaDeviceSynchronize());
-        checkCudaErr(cudaGetLastError());
-    }
-    buffer_person_models_.clear();
-    buffer_person_colors_.clear();
-    thrust::device_vector<glm::mat4>().swap(buffer_person_models_);
-    thrust::device_vector<glm::vec4>().swap(buffer_person_colors_);
+
+    // Copy directly from persistent device vectors to OGL buffer
+    update_ogl_buffer<<<((batch_size + n_threads - 1)/n_threads), n_threads>>>(batch_from, batch_to, batch_size,
+                                                                               thrust::raw_pointer_cast(d_person_models_.data() + batch_from),
+                                                                               thrust::raw_pointer_cast(d_person_colors_.data() + batch_from),
+                                                                               Model::RENDER_ENTITY->d_ogl_buffer_model_ptr,
+                                                                               Model::RENDER_ENTITY->d_ogl_buffer_color_ptr);
+    checkCudaErr(cudaDeviceSynchronize());
+    checkCudaErr(cudaGetLastError());
 
     auto lapse = std::chrono::high_resolution_clock::now() - tp_start;
     if(Model::CONFIG->debug_config().enable_debug_text) {
-        printf("[Population] Update population render (%d %d) time: %d ms\n",
-               pi->h_persons().size(),pi->h_person_models().size(),
-               std::chrono::duration_cast<std::chrono::milliseconds>(lapse).count());
+        std::cout << "[Population] Update population render (" << pi->h_persons().size() << " " << pi->h_person_models().size() << ") time: " << std::chrono::duration_cast<std::chrono::milliseconds>(lapse).count() << " ms" << std::endl;
     }
 }
 
