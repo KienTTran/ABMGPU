@@ -353,7 +353,7 @@ void Population::updateRender(){
 
     auto *pi = getPersonIndex<PersonIndexGPU>();
     int n_threads = Model::CONFIG->gpu_config().n_threads;
-    int population_size = pi->h_person_models().size();
+    int population_size = pi->h_persons().size();
     int batch_size = population_size;
     int batch_from = 0;
     int batch_to = batch_size;
