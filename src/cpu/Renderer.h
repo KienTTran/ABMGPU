@@ -30,6 +30,7 @@ public:
 
     void init(RenderEntity* gpu_entity);
     void start();
+    float get_zoom_factor();
 
 private:
     void renderGUI();
