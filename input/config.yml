@@ -7,7 +7,7 @@ gpu_config:
 render_config:
   window_width: 1280
   window_height: 720
-  display_gui: false
+  display_gui: true
   close_window_on_finish: true
   point_coord: 0.05
 

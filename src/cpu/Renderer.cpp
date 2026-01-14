@@ -17,7 +17,7 @@ Renderer::Renderer(Model* model){
     height_scaled = 0.0;
     aspect_ratio = 0.0;
     is_drag_mode = false;
-    zoomFactor = 1.2;
+    zoomFactor = 2.0;
     drag_speed = glm::vec2(1000.0f,1000.0f);
     mouse_position = glm::vec2(0.0f,0.0f);
     mouse_drag_center_start = glm::vec2(0.0f,0.0f);
@@ -164,6 +164,8 @@ void Renderer::start() {
             printf("[Renderer] Render time: %f ms\n",glfwGetTime() - start_time_all);
         }
 
+        renderGUI();
+
         glfwSwapBuffers(renderer_window);
         glBindVertexArray(0);
 
@@ -177,12 +179,21 @@ void Renderer::start() {
     return;
 }
 
+float Renderer::get_zoom_factor() {
+    return window_height / height_scaled;
+}
+
 void Renderer::renderGUI() {
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     //Put GUI windows here
+
+    ImGui::SetNextWindowPos(ImVec2(0,0));
+    ImGui::Begin("Zoom", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Text("Zoom: %.2f", get_zoom_factor());
+    ImGui::End();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -236,7 +247,7 @@ void Renderer::mouseScrollCallbackImpl(GLFWwindow* window, double x_offset, doub
 {
     mouse_position = glm::ivec2( mouse_input_x, mouse_input_y );
     double x = mouse_input_x/window_width - 0.5f;
-    double y = mouse_input_y/window_width - 0.5f;
+    double y = mouse_input_y/window_height - 0.5f;
     double preX = ( x * width_scaled );
     double preY = ( y * height_scaled );
     if( y_offset > 0 ) {//Zoom in
@@ -269,6 +280,59 @@ void Renderer::keyCallbackImpl(GLFWwindow *window, int key, int scancode, int ac
         glfwSetWindowShouldClose(renderer_window, true);
         exit(0);
     }
+    if (((key == GLFW_KEY_EQUAL && (mods & GLFW_MOD_SHIFT)) || key == GLFW_KEY_KP_ADD) && action == GLFW_PRESS) {
+        // zoom in
+        double x = mouse_input_x / window_width - 0.5f;
+        double y = mouse_input_y / window_height - 0.5f;
+        double preX = (x * width_scaled);
+        double preY = (y * height_scaled);
+        width_scaled /= zoomFactor;
+        height_scaled /= zoomFactor;
+        drag_speed = glm::vec2(1000.0f * width_scaled / window_width, 1000.0f * width_scaled / window_height);
+        if (height_scaled < 10.0f) {
+            height_scaled = 10.0f;
+            width_scaled = height_scaled * aspect_ratio;
+        }
+        if (height_scaled > window_height) {
+            height_scaled = window_height;
+            width_scaled = window_width;
+        }
+        double postX = (x * width_scaled);
+        double postY = (y * height_scaled);
+        camera_center_x += (preX - postX);
+        camera_center_y += (preY - postY);
+    }
+    if ((key == GLFW_KEY_MINUS || key == GLFW_KEY_KP_SUBTRACT) && action == GLFW_PRESS) {
+        // zoom out
+        double x = mouse_input_x / window_width - 0.5f;
+        double y = mouse_input_y / window_height - 0.5f;
+        double preX = (x * width_scaled);
+        double preY = (y * height_scaled);
+        width_scaled *= zoomFactor;
+        height_scaled *= zoomFactor;
+        drag_speed = glm::vec2(1000.0f * width_scaled / window_width, 1000.0f * width_scaled / window_height);
+        if (height_scaled < 10.0f) {
+            height_scaled = 10.0f;
+            width_scaled = height_scaled * aspect_ratio;
+        }
+        if (height_scaled > window_height) {
+            height_scaled = window_height;
+            width_scaled = window_width;
+        }
+        double postX = (x * width_scaled);
+        double postY = (y * height_scaled);
+        camera_center_x += (preX - postX);
+        camera_center_y += (preY - postY);
+    }
+    if (key == GLFW_KEY_0 && action == GLFW_PRESS) {
+        // reset zoom
+        width_scaled = window_width;
+        height_scaled = window_height;
+        camera_center_x = window_width / 2.0;
+        camera_center_y = window_height / 2.0;
+        camera_view_center = glm::vec2(0.0f, 0.0f);
+        drag_speed = glm::vec2(1000.0f * width_scaled / window_width, 1000.0f * width_scaled / window_height);
+    }
 }
 
 glm::dvec3 Renderer::unProject( const glm::dvec3& win )
@@ -292,4 +356,3 @@ glm::dvec2 Renderer::unProjectPlane( const glm::dvec2& win )
 
     return glm::dvec2( world1 + u * ( world2 - world1 ) );
 }
-
