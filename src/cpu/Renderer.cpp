@@ -46,6 +46,8 @@ void Renderer::init(RenderEntity* gpu_entity) {
     camera_center_x = (double)window_width/2.0;
     camera_center_y = (double)window_height/2.0;
 
+    zoomFactor = Model::CONFIG->render_config().zoom_step;
+
     render_entity_ = gpu_entity;
 }
 
@@ -159,7 +161,7 @@ void Renderer::start() {
                 render_count = 1;
             }
         }
-        glDrawElementsInstanced(render_mode, render_count, GL_UNSIGNED_INT, (void*)0, pi->size());
+        glDrawElementsInstanced(render_mode, render_count, GL_UNSIGNED_INT, (void*)0, Model::RENDER_ENTITY->num_triangles_to_draw);
         if(Model::CONFIG->debug_config().enable_debug_render_text){
             printf("[Renderer] Render time: %f ms\n",glfwGetTime() - start_time_all);
         }

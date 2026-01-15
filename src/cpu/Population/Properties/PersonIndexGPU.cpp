@@ -8,6 +8,9 @@
 PersonIndexGPU::PersonIndexGPU() {
     h_person_models_ = thrust::host_vector<glm::mat4>(Model::CONFIG->n_people_init()*Model::CONFIG->gpu_config().pre_allocated_mem_ratio);
     h_person_colors_ = thrust::host_vector<glm::vec4>(Model::CONFIG->n_people_init()*Model::CONFIG->gpu_config().pre_allocated_mem_ratio);
+    h_visible_models_ = thrust::host_vector<glm::mat4>();
+    h_visible_colors_ = thrust::host_vector<glm::vec4>();
+    visible_size_ = 0;
 }
 
 PersonIndexGPU::~PersonIndexGPU() {
@@ -54,4 +57,35 @@ void PersonIndexGPU::update() {
     h_persons_.shrink_to_fit();
     h_person_models_.shrink_to_fit();
     h_person_colors_.shrink_to_fit();
+}
+
+void PersonIndexGPU::subsample(int factor) {
+    if (factor <= 1) {
+        visible_size_ = 0; // not subsampling
+        return;
+    }
+    h_visible_models_.clear();
+    h_visible_colors_.clear();
+    std::size_t n = h_persons_.size();
+    for (std::size_t i = 0; i < n; i += factor) {
+        h_visible_models_.push_back(h_person_models_[i]);
+        h_visible_colors_.push_back(h_person_colors_[i]);
+    }
+    visible_size_ = h_visible_models_.size();
+}
+
+void PersonIndexGPU::updateVisible(double left, double right, double bottom, double top) {
+    h_visible_models_.clear();
+    h_visible_colors_.clear();
+    std::size_t n = h_persons_.size();
+    for (std::size_t i = 0; i < n; ++i) {
+        glm::mat4 model = h_person_models_[i];
+        double x = model[3][0];
+        double y = model[3][1];
+        if (x >= left && x <= right && y >= bottom && y <= top) {
+            h_visible_models_.push_back(model);
+            h_visible_colors_.push_back(h_person_colors_[i]);
+        }
+    }
+    visible_size_ = h_visible_models_.size();
 }

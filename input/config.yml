@@ -10,6 +10,8 @@ render_config:
   display_gui: true
   close_window_on_finish: true
   point_coord: 0.05
+  people_per_triangle: 10
+  zoom_step: 1.5
 
 debug_config:
   width: 0
@@ -46,10 +48,10 @@ age_structure: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 20, 60, 100]
 initial_age_structure: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 25, 35, 45, 55, 65, 100]
 
 raster_db:
-#  population_raster: "../input/bfa/bfa_init_pop.asc"
-#  district_raster: "../input/bfa/bfa_admin.asc"
-#  ecoclimatic_raster: "../input/bfa/bfa_ecozone.asc"
-#  travel_raster: "../input/bfa/bfa_travel.asc"
+  population_raster: "../input/bfa/bfa_init_pop.asc"
+  district_raster: "../input/bfa/bfa_admin.asc"
+  ecoclimatic_raster: "../input/bfa/bfa_ecozone.asc"
+  travel_raster: "../input/bfa/bfa_travel.asc"
 ##  pr_treatment_under5: "../input/bfa/bfa_treatment.asc"
 ##  pr_treatment_over5: "../input/bfa/bfa_o5_treatment.asc"
 ##  beta_raster: "../input/bfa/bfa_beta.asc"
@@ -57,10 +59,10 @@ raster_db:
 #  p_treatment_for_more_than_5_by_location: [ 0.5 ]
 #  beta_by_location: [ 0.73 ]
 
-  population_raster: "../input/sample/population.asc"
-  district_raster: "../input/sample/district.asc"
-  ecoclimatic_raster: "../input/sample/ecoclimatic.asc"
-  travel_raster: "../input/sample/travel.asc"
+#  population_raster: "../input/sample/population.asc"
+#  district_raster: "../input/sample/district.asc"
+#  ecoclimatic_raster: "../input/sample/ecoclimatic.asc"
+#  travel_raster: "../input/sample/travel.asc"
 #  pr_treatment_under5: "../input/sample/pr_treatment_under5.asc"
 #  pr_treatment_over5: "../input/sample/pr_treatment_over5.asc"
 #  beta_raster: "../input/sample/beta.asc"

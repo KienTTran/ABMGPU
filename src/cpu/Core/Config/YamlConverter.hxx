@@ -76,6 +76,8 @@ namespace YAML {
             rcfd.point_coord = node["point_coord"].as<double>();
             rcfd.window_width = node["window_width"].as<int>();
             rcfd.window_height = node["window_height"].as<int>();
+            rcfd.people_per_triangle = node["people_per_triangle"].as<int>();
+            rcfd.zoom_step = node["zoom_step"].as<float>();
             return true;
         }
     };

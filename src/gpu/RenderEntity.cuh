@@ -46,6 +46,8 @@ public:
 
 public:
     Model* model_;
+    int num_triangles_to_draw = 0;
+
     GLuint VAO;
     Shader *shader;
 

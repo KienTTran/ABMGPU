@@ -48,12 +48,13 @@ __global__ void update_ogl_buffer(int work_from, int work_to, int work_batch,
                                   glm::mat4 buffer_person_models[],
                                   glm::vec4 buffer_person_colors[],
                                   glm::mat4 ogl_person_models[],
-                                  glm::vec4 ogl_person_colors[]){
+                                  glm::vec4 ogl_person_colors[],
+                                  int people_per_triangle){
     int thread_index = blockIdx.x * blockDim.x + threadIdx.x;
     int stride = blockDim.x * gridDim.x;
     for (int index = thread_index; index < work_batch; index += stride) {
-        ogl_person_models[work_from+index] = buffer_person_models[index];
-        ogl_person_colors[work_from+index] = buffer_person_colors[index];
+        ogl_person_models[work_from+index] = buffer_person_models[index * people_per_triangle];
+        ogl_person_colors[work_from+index] = buffer_person_colors[index * people_per_triangle];
         __syncthreads();
     }
 }
@@ -354,7 +355,10 @@ void Population::updateRender(){
     auto *pi = getPersonIndex<PersonIndexGPU>();
     int n_threads = Model::CONFIG->gpu_config().n_threads;
     int population_size = pi->h_persons().size();
-    int batch_size = population_size;
+    int people_per_triangle = Model::CONFIG->render_config().people_per_triangle;
+    if (people_per_triangle <= 0) people_per_triangle = 1;
+    int batch_size = population_size / people_per_triangle;
+    if (batch_size == 0) batch_size = 1; // at least 1
     int batch_from = 0;
     int batch_to = batch_size;
     //This is to make sure threads fit all people in population
@@ -365,9 +369,12 @@ void Population::updateRender(){
                                                                                thrust::raw_pointer_cast(d_person_models_.data() + batch_from),
                                                                                thrust::raw_pointer_cast(d_person_colors_.data() + batch_from),
                                                                                Model::RENDER_ENTITY->d_ogl_buffer_model_ptr,
-                                                                               Model::RENDER_ENTITY->d_ogl_buffer_color_ptr);
+                                                                               Model::RENDER_ENTITY->d_ogl_buffer_color_ptr,
+                                                                               people_per_triangle);
     checkCudaErr(cudaDeviceSynchronize());
     checkCudaErr(cudaGetLastError());
+
+    Model::RENDER_ENTITY->num_triangles_to_draw = batch_size;
 
     auto lapse = std::chrono::high_resolution_clock::now() - tp_start;
     if(Model::CONFIG->debug_config().enable_debug_text) {

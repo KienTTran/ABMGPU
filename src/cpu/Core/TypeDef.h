@@ -89,6 +89,8 @@ struct RenderConfig{
     bool display_gui;
     bool close_window_on_finish;
     double point_coord;
+    int people_per_triangle = 1;
+    float zoom_step = 2.0f;
     friend std::ostream &operator<<(std::ostream &os, const RenderConfig &mcf) {
         os << "render_config";
         return os;
